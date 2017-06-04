@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "async": "*",
-    "express": "*",
+    "express": "3.4.7",
     "moment": "*",
     "underscore": "*",
     "request": "*",

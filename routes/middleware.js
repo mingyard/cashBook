@@ -1,7 +1,3 @@
-/**
- * Created by 陈杰 on 2014/7/9.
- */
-
 var _ = require("underscore");
 var config = require('../config');
 var default_page_size = 10;

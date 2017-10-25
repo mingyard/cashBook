@@ -9,6 +9,7 @@ exports.getShareInfo = function (shareIds, cb) {
     }
     shareIds.join(',')
     httpUtil.getJsonp(config.apiHost + '/data/feed/' + shareIds + ',money.api?time=' + new Date().getTime(), function (err, result) {
+        console.log(config.apiHost + '/data/feed/' + shareIds + ',money.api?time=' + new Date().getTime())
         if (err) {
             return cb(err)
         }

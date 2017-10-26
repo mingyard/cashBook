@@ -27,3 +27,31 @@ exports.getJsonp = function (url, cb,header,param) {
         }
     })
 }
+
+exports.getJSON = function (url,param,cb) {
+    if (!cb) {
+        cb = param
+        param = null
+    }
+    var options = {
+        url: url,
+        qs: param,
+        headers: {
+            'content-type': 'application/json',
+            'Accept': '*/*'
+        }
+    }
+    request(options, function (error, response, body) {
+        if (error) return cb(error)
+        if (response.statusCode != 200) return cb({code: response.statusCode, data: body})
+        try {
+            var data = JSON.parse(body)
+        } catch (e) {
+            console.log('exports.getJSON JSON.parse error')
+        }
+        if (data) {
+            return cb(null, data)
+        }
+        cb(null, body)
+    })
+}

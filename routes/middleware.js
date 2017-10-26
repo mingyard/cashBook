@@ -53,7 +53,7 @@ exports.midSend = function () {
                 if (code == 200) {
                     res.send({ status: 'success', code: code, data: data })
                 } else {
-                    res.send({ status: 'failure', code: code, errMsg: data, message: data })
+                    res.send({ status: 'failure', code: code, errMsg: data })
                 }
             } else {
                 res.send({ status: 'success', code: 200, data: code })

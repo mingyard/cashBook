@@ -13,6 +13,11 @@
     "request": "*",
     "ssdb": "*",
     "body-parser": "*",
-    "morgan": "*"
+    "morgan": "*",
+    "redis": "*",
+    "mongoskin": "*",
+    "mongodb": "*",
+    "deepcopy": "*",
+    "crypto-js": "*"
   }
 }

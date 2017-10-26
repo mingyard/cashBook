@@ -4,4 +4,4 @@ env-config.js
 logs/
 **/.idea/
 .vscode/
-config.js
+secret.js

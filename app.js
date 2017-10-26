@@ -18,9 +18,18 @@ app.all('*', function (req, res, next) {
     next();
 });
 
+var logToken = '[:date] - :method :url :status :res[content-length] - :response-time ms';
+express.logger.token('date', function () {
+    return new Date().toLocaleString();
+});
+app.use(express.logger(logToken))
+app.use(express.bodyParser({
+    maxFieldsSize: 1 * 1024 * 1024
+}))
+
 app.use(middleware.midSend())
-app.use('/api', api);
 app.use(app.router)
+app.use('/api', api)
 
 exports.server = require('http').createServer(app)
 exports.server.listen(config.port, function () {

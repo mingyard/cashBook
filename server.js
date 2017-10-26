@@ -33,7 +33,7 @@ var reload = function () {
 }
 
 if (cluster.isMaster){
-    process.title = 'share_master'
+    process.title = 'cash_master'
     var i = process.argv.indexOf('-i')
     i = process.argv[i + 1]
     i = Math.abs(parseInt(i, 10))
@@ -69,7 +69,7 @@ if (cluster.isMaster){
     });
 } else {
     var server = require('./app').server
-    process.title = 'share_worker'
+    process.title = 'cash_worker'
 
     process.on('SIGTERM', function () {
         console.log('worker receive signal SIGTERM')

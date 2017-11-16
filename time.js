@@ -47,8 +47,8 @@ var schedule = require('node-schedule')
 
 
 //2017-11-17 
-new schedule.scheduleJob('59 29 23 * * *', function () {
-    while (new Date().getMilliseconds() != 480) {
+new schedule.scheduleJob('59 * 22 * * *', function () {
+    while (new Date().getMilliseconds() != 475) {
         continue
     }
     placeOrder()

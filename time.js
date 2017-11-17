@@ -46,9 +46,16 @@ var schedule = require('node-schedule')
 // });
 
 
-//2017-11-17 
+//2017-11-17  millis = 475 
+//运行日志
+// minute: 29, seconds: 59 , millis: 481
+// ["2017-11-16 22:29:59"] time , milli: 555, err: null, stdout: "", stderr: ""
+//服务器排名10 到达服务器时间114
+
+
+
 new schedule.scheduleJob('59 * 22 * * *', function () {
-    while (new Date().getMilliseconds() != 475) {
+    while (new Date().getMilliseconds() != 425) {
         continue
     }
     placeOrder()

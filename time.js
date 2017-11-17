@@ -55,7 +55,7 @@ var schedule = require('node-schedule')
 
 
 new schedule.scheduleJob('59 * 22 * * *', function () {
-    while (new Date().getMilliseconds() != 425) {
+    while (new Date().getMilliseconds() != 450) {
         continue
     }
     placeOrder()

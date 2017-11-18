@@ -54,8 +54,13 @@ var schedule = require('node-schedule')
 
 
 
+//2017-11-18  millis = 450 
+//运行日志
+// minute: 29, seconds: 59 , millis: ?
+// ["2017-11-16 22:29:59"] time , milli: 530, err: null, stdout: "", stderr: ""
+
 new schedule.scheduleJob('59 * 22 * * *', function () {
-    while (new Date().getMilliseconds() != 450) {
+    while (new Date().getMilliseconds() != 460) {
         continue
     }
     placeOrder()

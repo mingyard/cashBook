@@ -40,10 +40,7 @@ exports.createUser = function (openid, cb) {
                 if (err) {
                     return cb(err)
                 }
-                if (result.length == 0) {
-                    return cb(null, false)
-                }
-                cb(null, true)
+                cb(null, result)
             })
         },
         save: [ 'check', function (result, cb) {

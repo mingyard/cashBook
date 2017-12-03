@@ -10,7 +10,7 @@ var deepcopy    = require("deepcopy");
 var GridStore = mongoskin.GridStore;
 
 var redisCache = require('../redis/redis_cache.js');
-var strIdCollections = [];
+var strIdCollections = ["user"];
 var collectionIndex = {
 }
 

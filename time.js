@@ -68,8 +68,16 @@ var schedule = require('node-schedule')
 // ["2017-11-21 22:29:59"] time , milli: 538
 
 
+
+//2017-11-30  millis = 460 
+//运行日志
+//22分开始
+//抢跑失败
+// minute: 29, seconds: 59 , millis: 467
+// ["2017-11-30 22:29:59"] time , milli: 544
+
 new schedule.scheduleJob('59 * * * * *', function () {
-    while (new Date().getMilliseconds() != 465) {
+    while (new Date().getMilliseconds() != 463) {
         continue
     }
     placeOrder()
@@ -78,7 +86,7 @@ new schedule.scheduleJob('59 * * * * *', function () {
 })
 
 function placeOrder () {
-    exec('open /users/ming/yard/time/doublePoint.app', function () {
+    exec('open /users/ming/yard/time/timedeal.app', function () {
         console.log("[%j] time , milli: %j", new Date().toLocaleString(),new Date().getMilliseconds())
     })
 }

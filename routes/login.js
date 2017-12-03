@@ -14,7 +14,7 @@ exports.getSessionKey = function (code, cb) {
         appid: secret.AppID,
         secret: secret.AppSecret,
         js_code: code,
-        grant_type: 'authorization_code',
+        grant_type: 'authorization_code'
     }
     httpUtil.getJSON(url, param, function (err, result) {
         if (err) {
@@ -30,13 +30,13 @@ exports.getSessionKey = function (code, cb) {
 exports.createUser = function (openid, cb) {
     var time = new Date()
     var data = {
-        openid: openid,
+        _id: openid,
         createTime:  time.getTime(),
         strTime: moment(time).format('YYYY-MM-DD HH:mm:ss')
     }
     async.auto({
         check: function (cb) {
-            userCollection.find({openid: openid}, function (err, result) {
+            userCollection.findById(openid, function (err, result) {
                 if (err) {
                     return cb(err)
                 }
@@ -49,7 +49,7 @@ exports.createUser = function (openid, cb) {
         save: [ 'check', function (result, cb) {
             var check = result.check
             if (check) {
-                return cb('该用户已存在')
+                return cb()
             }
             userCollection.save(data, function (err, result) {
                 if (err) {
@@ -63,7 +63,7 @@ exports.createUser = function (openid, cb) {
         if (err) {
             return cb(err)
         }
-        cb(null, result.save._id)
+        cb(null, result.save ? result.save._id : null)
     })
 }
 
@@ -153,3 +153,22 @@ exports.getSessionInfo = function (session, cb) {
 //         console.log(err,result)
 //     }
 // )
+
+//更新用户信息
+exports.updateUserInfo =  function (req, res) {
+    var opneid = req.openid
+    var info = {
+        avatarUrl: req.param('avatarUrl'),
+        city: req.param('city'),
+        country: req.param('country'),
+        gender: req.param('gender'),
+        language: req.param('language'),
+        nickName: req.param('nickName')
+    }
+    userCollection.updateById(opneid, {$set:info}, function (err, result) {
+        if (err) {
+            return res.send(400,err)
+        }
+        res.send(200, result)
+    })
+}

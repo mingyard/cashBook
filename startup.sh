@@ -10,7 +10,7 @@ case $1 in
 	;;
 
 	restart)
-		kill -9 `pgrep -f share_` > ps.log 2>&1
+		kill -9 `pgrep -f cash_` > ps.log 2>&1
 		sleep 1
 		node server.js $2 $3 > /opt/logs/cash.log 2>&1 &
 		sleep 2

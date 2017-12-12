@@ -1,7 +1,8 @@
-var _ = require("underscore");
-var config = require('../config');
-var default_page_size = 10;
-var max_page_size = 20;
+var redisClient = require("../redis/redis_client")
+var _ = require("underscore")
+var config = require('../config')
+var default_page_size = 10
+var max_page_size = 20
 
 exports.midPageChecker = function (pageSize) {
     return function (req, res, next) {
@@ -61,4 +62,24 @@ exports.midSend = function () {
         }
         next()
     }
+}
+
+//通过session获取openid
+exports.getOpenId = function (req, res, next) {
+    var sessionId = req.param('sessionId')
+    if (!sessionId) {
+        return res.send(400, '参数错误,缺少sessionId')
+    }
+    redisClient.get(sessionId, function (err, result) {
+        if (err) {
+            return res.send(400, err)
+        }
+        if (!result) {
+            return res.send(400,'session已过期') 
+        }
+        var info = JSON.parse(result)
+        req.openId = info.openId
+        req.sessionKey = info.sessionKey
+        next()
+    })
 }

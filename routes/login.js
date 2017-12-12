@@ -8,6 +8,7 @@ var async = require('async')
 var MD5 = require("crypto-js/md5")
 var redisClient = require('../redis/redis_client.js').redisClient()
 
+//生成sessionKey
 exports.getSessionKey = function (code, cb) {
     var url = config.wxApiHost + '/sns/jscode2session'
     var param = {
@@ -27,6 +28,7 @@ exports.getSessionKey = function (code, cb) {
     })
 }
 
+//创建用户
 exports.createUser = function (openid, cb) {
     var time = new Date()
     var data = {
@@ -64,6 +66,7 @@ exports.createUser = function (openid, cb) {
     })
 }
 
+//登录
 exports.login = function (req, res) {
     var code = req.param('code')
     if (!code) {
@@ -138,18 +141,11 @@ exports.getSessionInfo = function (session, cb) {
             return cb(err)
         }
         if (!result) {
-            return cb('session已过期')
+            return cb('session已过期') 
         }
         cb(null, result)
     })
 }
-
-// exports.getSiessonKey(
-//     '011xgfr52xDeTN0Mhnr52NE9r52xgfri',
-//     function (err, result) {
-//         console.log(err,result)
-//     }
-// )
 
 //更新用户信息
 exports.updateUserInfo =  function (req, res) {

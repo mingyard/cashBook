@@ -82,8 +82,15 @@ var schedule = require('node-schedule')
 // minute: 29, seconds: 59 , millis: 466
 // ["2017-12-03 22:29:59"] time , milli: 553
 
+
+//2017-12-03 millis = 467
+// ["2017-12-04 22:28:59"] time , milli: 546
+// minute: 29, seconds: 59 , millis: 468
+// ["2017-12-04 22:29:59"] time , milli: 544
+
+
 new schedule.scheduleJob('59 * * * * *', function () {
-    while (new Date().getMilliseconds() != 467) {
+    while (new Date().getMilliseconds() != 472) {
         continue
     }
     placeOrder()

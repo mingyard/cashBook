@@ -1,4 +1,4 @@
-var redisClient = require("../redis/redis_client")
+var redisClient = require("../redis/redis_client").redisClient()
 var _ = require("underscore")
 var config = require('../config')
 var default_page_size = 10

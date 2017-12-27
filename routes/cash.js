@@ -127,7 +127,7 @@ exports.getMembers = function (cashId, cb) {
 
 //获取账本类型
 exports.getTypeList = function (req, res) {
-    cashTypeCollection.find({status:1}, function (err, result) {
+    cashTypeCollection.find({status:"1"}, function (err, result) {
         if (err) {
             return res.send(400, err)
         }

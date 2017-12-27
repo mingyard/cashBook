@@ -103,3 +103,13 @@ function placeOrder () {
         console.log("[%j] time , milli: %j", new Date().toLocaleString(),new Date().getMilliseconds())
     })
 }
+
+
+#!/bin/bash
+miliTime=$[`date +%s%N`/1000000]
+today=1513310699000
+while [ $miliTime -lt $today ]
+do
+    miliTime=$[`date +%s%N`/1000000]
+done
+echo $miliTime

@@ -14,3 +14,7 @@ api.post('/login', login.login)
 api.post('/update/userInfo', middleware.getOpenId, login.updateUserInfo)
 //获取用户记账本列表
 api.post('/cash/list', middleware.getOpenId, cash.cashList)
+//创建记账本
+api.post('/cash/create', middleware.getOpenId, cash.crateCash)
+//获取账本类型列表
+api.post("/cashType/list", middleware.getOpenId, cash.getTypeList)

@@ -1,6 +1,7 @@
 var redisClient = require('../redis/redis_client.js').redisClient()
 var dbUtils = require('../mongoSkin/mongoUtils.js')
 var cashCollection= new dbUtils("cash")
+var cashTypeCollection = new dbUtils("cashType")
 var async = require('async')
 var _ = require('underscore')
 var moment = require('moment')
@@ -121,5 +122,15 @@ exports.getMembers = function (cashId, cb) {
             return cb(err)
         }
         cb(null, _.keys(result))
+    })
+}
+
+//获取账本类型
+exports.getTypeList = function (req, res) {
+    cashTypeCollection.find({status:1}, function (err, result) {
+        if (err) {
+            return res.send(400, err)
+        }
+        res.send(200, result)
     })
 }

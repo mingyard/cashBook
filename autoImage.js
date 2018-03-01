@@ -4,22 +4,60 @@ var exec = require('child_process').exec
 
 var images = []
 var ids = [1,2,3,4,5,6,7,8]
+var number = 0
+
+//分辨率配置
+var minX = 400
+var maxX = 1240
+var minY = 860
+var maxY = 1560
+var leftX = 176
+
+var ArrayX = maxX - minX
+var ArrayY = maxY - minY
+
+//领种子点
+var getGlodPoint = {
+    X: 770,
+    Y: 2200
+}
+
+//关闭广告点
+var closeAd1 = {
+    X:1370,
+    Y:450
+}
+var closeAd2 = {
+    X:1350,
+    Y:880
+}
+
+//关闭确认页
+var closePoint = {
+    X:1350,
+    Y:528
+}
+
+//滑块点击位置
+var slidePoint = {
+    X:280,
+    Y:1700
+}
+
+//滑块速度
+var slideTime = 6000
 
 //装载图片
 function getImageArray (image,callback) {
     //像素数组
-    var pointArray = new Array(840)
+    var pointArray = new Array(ArrayX)
     for (var i = 0 ; i < pointArray.length ; i++) {
-        pointArray[i] = new Array(700)
+        pointArray[i] = new Array(ArrayY)
     }
     getPixels("./public/" + image + '.png', function (err, pixels){
         if (err) {
             return callback("image:%j , 装载失败",image)
         }
-        var minX = 400
-        var maxX = 1240
-        var minY = 860
-        var maxY = 1560
     
         for (var i = minX; i < maxX; i++) {
             for (var j = minY; j < maxY; j++) {
@@ -74,8 +112,8 @@ function getBlackImage (image, callback) {
             var frist = result.frist.pointArray
             var second = result.second.pointArray
             // var count = 0
-            for (var i = 0; i < 840; i++) {
-                for (var j = 0; j < 700; j++) {
+            for (var i = 0; i < ArrayX; i++) {
+                for (var j = 0; j < ArrayY; j++) {
                     if (frist[i][j].R != second[i][j].R || frist[i][j].G != second[i][j].G || frist[i][j].B != second[i][j].B) {
                         var fristY = getPonitY(frist[i][j])
                         var secondY = getPonitY(second[i][j])
@@ -133,9 +171,9 @@ function contrastImage (callback) {
         contrast:['checkImage', function (result, cb) {
             var blackImage = result.checkImage.pointArray
             var target = result.target.pointArray
-            for (var i = 0; i < 840; i++) {
+            for (var i = 0; i < ArrayX; i++) {
                 var count = 0
-                for (var j = 0; j < 700; j++) {
+                for (var j = 0; j < ArrayY; j++) {
                     var blackImageY = getPonitY(blackImage[i][j])
                     var targetY = getPonitY(target[i][j])
                     if (targetY < blackImageY) {
@@ -163,8 +201,8 @@ function checkImage (imageArray, cb) {
     async.eachSeries(images, function (item, callback) {
         var number = 0
         var count = 0
-        for (var i = 0; i < 840; i+=50) {
-            for (var j = 0; j < 700; j+=50) {
+        for (var i = 0; i < ArrayX; i+=50) {
+            for (var j = 0; j < ArrayY; j+=50) {
                 number++
                 if (imageArray[i][j].R == item.pointArray[i][j].R && imageArray[i][j].G == item.pointArray[i][j].G && imageArray[i][j].B == item.pointArray[i][j].B) {
                     count++
@@ -238,10 +276,10 @@ function atuoPass (cb) {
         final:['check', function (result, cb) {
             var point = result.check
             // console.log('对比完成, 目标点:%j',point)
-            // console.log('移动距离:%j', point - 176)
-            var endPoint = point + 108
+            // console.log('移动距离:%j', point - leftX)
+            var endPoint = point + slidePoint.X - leftX
             // console.log('终点:%j', endPoint)
-            slide ({X:280,Y:1700},{X:endPoint,Y:1700},5000,function (err) {
+            slide (slidePoint,{X:endPoint,Y:slidePoint.Y},slideTime,function (err) {
                 if (err) {
                     return cb(err)
                 }
@@ -279,12 +317,12 @@ function click (point,time,cb) {
     })
 }
 
-
+//关闭广告
 function closeAd (cb) {
     async.auto({
         //广告1        
         ad1: function (cb) {
-            click({X:1370,Y:450},100,function (err) {
+            click(closeAd1,100,function (err) {
                 if (err) {
                     return cb('广告 ad1 关闭失败, err:'+err)
                 }
@@ -293,7 +331,7 @@ function closeAd (cb) {
         },
         //广告2     
         ad2: ['ad1', function (result, cb) {
-            click({X:1350,Y:880},100,function (err) {
+            click(closeAd2,100,function (err) {
                 if (err) {
                     return cb('广告 ad2 关闭失败, err:'+err)
                 }
@@ -324,14 +362,16 @@ function autoDo (cb) {
                 },7000)
             })
         },
+        //领种子
         getGlod: ['pullDown' , function (result,cb) {
-            click({X:770,Y:2200},3000,function (err) {
+            click(getGlodPoint,3000,function (err) {
                 if (err) {
                     return cb(err)
                 }
                 cb()
             })
         }],
+        //过验证
         pass: ['getGlod', function (result, cb) {
             atuoPass(function (err) {
                 if (err) {
@@ -356,7 +396,7 @@ function autoDo (cb) {
         }],
         //关闭恭喜页
         close: ['closeAd' , function (result, cb) {
-            click({X:1350,Y:528},1000,function (err) {
+            click(closePoint,1000,function (err) {
                 if (err) {
                     return cb(err)
                 }
@@ -366,7 +406,7 @@ function autoDo (cb) {
         }]
     },function (err) {
         if (err) {
-            return cb('自动执行中断,err:'+err)
+            return cb(err)
         }
         console.log('本次摇种子完成')
         cb()
@@ -377,9 +417,14 @@ function autoDo (cb) {
 //递归调用
 function forever () {
     autoDo(function (err) {
+        number++
+        console.log("运行%j次",number)                 
         if (err) {
-            console.log("atuoPass err:%j",err) 
-            return
+            console.log("atuoPass err:%j",err)
+            if (err == '图库中未找到该图片！') {
+                forever()  
+            }
+            return 
         }
         setTimeout(function () {
             forever()        

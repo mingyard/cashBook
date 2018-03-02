@@ -45,7 +45,7 @@ var slidePoint = {
 }
 
 //滑块速度
-var slideTime = 6000
+var slideTime = 7000
 
 //装载图片
 function getImageArray (image,callback) {
@@ -322,7 +322,7 @@ function closeAd (cb) {
     async.auto({
         //广告1        
         ad1: function (cb) {
-            click(closeAd1,100,function (err) {
+            click(closeAd1,500,function (err) {
                 if (err) {
                     return cb('广告 ad1 关闭失败, err:'+err)
                 }
@@ -331,7 +331,7 @@ function closeAd (cb) {
         },
         //广告2     
         ad2: ['ad1', function (result, cb) {
-            click(closeAd2,100,function (err) {
+            click(closeAd2,500,function (err) {
                 if (err) {
                     return cb('广告 ad2 关闭失败, err:'+err)
                 }
@@ -379,7 +379,7 @@ function autoDo (cb) {
                 }
                 setTimeout(function () {
                     cb()  
-                },2000)
+                },5000)
             })
         }],
         //关闭广告

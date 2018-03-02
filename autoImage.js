@@ -1,51 +1,53 @@
 var getPixels = require('get-pixels')
 var async = require('async')
 var exec = require('child_process').exec
+var deviceConfig = require("./deviceConfig.js")
 
 var images = []
 var ids = [1,2,3,4,5,6,7,8]
 var number = 0
 
 //分辨率配置
-var minX = 400
-var maxX = 1240
-var minY = 860
-var maxY = 1560
-var leftX = 176
+var minX = deviceConfig.screen.minX
+var maxX = deviceConfig.screen.maxX
+var minY = deviceConfig.screen.minY
+var maxY = deviceConfig.screen.maxY
+var leftX = deviceConfig.screen.leftX
 
 var ArrayX = maxX - minX
 var ArrayY = maxY - minY
 
 //领种子点
 var getGlodPoint = {
-    X: 770,
-    Y: 2200
+    X: deviceConfig.getGlodPoint.X,
+    Y: deviceConfig.getGlodPoint.Y
 }
 
 //关闭广告点
 var closeAd1 = {
-    X:1370,
-    Y:450
+    X:deviceConfig.closeAd1.X,
+    Y:deviceConfig.closeAd1.Y
 }
 var closeAd2 = {
-    X:1350,
-    Y:880
+    X:deviceConfig.closeAd2.X,
+    Y:deviceConfig.closeAd2.Y
 }
 
 //关闭确认页
 var closePoint = {
-    X:1350,
-    Y:528
+    X:deviceConfig.closePoint.X,
+    Y:deviceConfig.closePoint.Y
 }
 
 //滑块点击位置
 var slidePoint = {
-    X:280,
-    Y:1700
+    X:deviceConfig.slidePoint.X,
+    Y:deviceConfig.slidePoint.Y
 }
 
 //滑块速度
-var slideTime = 6000
+var slideTime = deviceConfig.slideTime
+var projectPath = deviceConfig.projectPath
 
 //装载图片
 function getImageArray (image,callback) {
@@ -237,7 +239,7 @@ function getCheckImage (cb) {
             })
         },
         save: ['screen', function (result,cb) {
-            exec('adb pull /sdcard/screen.png /Users/ming/yard/cashBookApi/public/screen.png', function (err) {
+            exec('adb pull /sdcard/screen.png '+projectPath+'/public/screen.png', function (err) {
                 if (err) {
                     return cb(err)
                 }

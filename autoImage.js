@@ -181,7 +181,7 @@ function contrastImage (callback) {
                     if (targetY < blackImageY) {
                         count++
                         if (count > 100) {
-                            return cb(null, i + 400)
+                            return cb(null, i + deviceConfig.screen.minX)
                         }
                     }
                 }

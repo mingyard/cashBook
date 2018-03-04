@@ -45,6 +45,18 @@ var slidePoint = {
     Y:deviceConfig.slidePoint.Y
 }
 
+//下拉启始位
+var pullPointBegin = {
+    X: deviceConfig.pullPointBegin.X,
+    Y: deviceConfig.pullPointBegin.Y
+}
+
+//下拉截止位
+var pullPointEnd = {
+    X: deviceConfig.pullPointEnd.X,
+    Y: deviceConfig.pullPointEnd.Y
+}
+
 //滑块速度
 var slideTime = deviceConfig.slideTime
 var projectPath = deviceConfig.projectPath
@@ -355,7 +367,7 @@ function autoDo (cb) {
     async.auto({
         //下拉
         pullDown: function (cb) {
-            slide ({X:780,Y:840},{X:780,Y:1520},1000,function (err) {
+            slide (pullPointBegin,pullPointEnd,1000,function (err) {
                 if (err) {
                     return cb(err)
                 }

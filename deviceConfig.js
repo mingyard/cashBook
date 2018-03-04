@@ -31,6 +31,16 @@ var CONFIG = {
         X:280,
         Y:1700
     },
+    //下拉其实位置
+    "pullPointBegin" : {
+        X:780,
+        Y:840
+    },
+    //下拉终止位置    
+    "pullPointEnd" : {
+        X:780,
+        Y:1520
+    },
     //滑块速度
     "slideTime" : 7000,
     "projectPath" : "/Users/ming/yard/cashBookApi"

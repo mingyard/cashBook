@@ -175,7 +175,7 @@ function contrastImage (callback) {
         },
         checkImage:['target', function (result, cb) {
             var target = result.target.pointArray
-            checkImage(target, function (err,result) {
+            checkImage(target, images,function (err,result) {
                 if (err) {
                     return cb(err)
                 }
@@ -210,7 +210,7 @@ function contrastImage (callback) {
 }
 
 //判断图片名称
-function checkImage (imageArray, cb) {
+function checkImage (imageArray,images,cb) {
     //多点检测
     async.eachSeries(images, function (item, callback) {
         var number = 0
@@ -223,7 +223,7 @@ function checkImage (imageArray, cb) {
                 }
             }
         }
-        console.log('识别点 number :%j , count:%j', number, count)
+        console.log('图:%j 识别点 number :%j , count:%j', item.name,number, count)
         if (count / number > 0.8) {   
             return callback(item)
         }
@@ -447,13 +447,176 @@ function forever () {
 }
 
 //主方法
-loadImages(function (err) {
-    if (err) {
-        console.log(err)
-        return
-    }
-    forever()
-}) 
+// loadImages(function (err) {
+//     if (err) {
+//         console.log(err)
+//         return
+//     }
+//     forever()
+// }) 
+
+
+
+//1.0
+
+//智能装在图库
+//获取图片=>对比图片=>保存图
+function addImage (cb) {
+    async.auto({
+        //刷新图片
+        reload: function (cb) {
+            click(deviceConfig.reloadPoint,2000,function (err) {
+                if (err) {
+                    return cb('刷新图片失败, err:'+err)
+                }
+                console.log('刷新图片')
+                cb()
+            }) 
+        },
+        //获取当前图片
+        getImage: [ 'reload',function (result,cb) {
+            getCheckImage(function (err) {
+                if (err) {
+                    return cb()
+                }
+                console.log('获取当前图片')                
+                cb()
+            })
+        }],
+        //获取图库图片列表
+        getImageList: [ 'getImage', function (result, cb) {
+            exec("ls -l " + projectPath + "/public |awk '/.png/ {print $NF}'", function (err,result) {
+                if (err){
+                    console.log('获取图库列表失败')
+                    return cb(err)
+                }
+                var list = result.split('\n')
+                list.pop()
+                console.log('获取图库图片列表 list: %j',list)                
+                cb(null,list)
+            })
+        }],
+        //装载当前图片
+        loadImage: [ 'getImageList', function (result, cb) {
+            getImageArray('screen', function (err, result) {
+                if (err) {
+                    return cb(err)
+                }
+                console.log('装载当前图片')
+                cb(null, result)
+            })
+        }],
+        //装载图库
+        loadImages: [ 'loadImage', function (result, cb) {
+            images = []
+            var list = result.getImageList
+            async.eachSeries(list, function (item, callback) {
+                if (/\-1.png$/.test(item)) {
+                    return callback()
+                }
+                var imagName = item.split('.')
+                if (imagName[0] == 'screen') {
+                    return callback()
+                }
+                getImageArray(imagName[0], function (err, result) {
+                    if (err) {
+                        return callback(err)
+                    }
+                    images.push(result)
+                    callback()
+                })
+            },function (err) {
+                if (err) {
+                    return cb(err)
+                }
+                console.log('装载图库')                
+                cb()
+            })
+        }],
+        //图库图片与当前图片对比
+        checkImage: [ 'loadImages' ,function (result, cb) {
+            var target = result.loadImage
+            var list = result.getImageList
+            checkImage(target.pointArray, images,function (err,result) {
+                if (err) {
+                    return cb(null,target)
+                }
+                if (list.indexOf(result.name + '-1') != -1) {
+                    return cb('继续添加')
+                }
+                console.log('图片对比 result: %j',result.name)                
+                saveImage(result.name + '-1',function (err) {
+                    if (err) {
+                        return cb(err)
+                    }
+                    cb('继续添加')                    
+                })
+            })
+        }],
+        //计算新图片名称
+        getAddName: [ 'checkImage', function (result, cb) {
+            var list  = result.getImageList
+            var lastName = null
+            for (var index = list.length - 1 ; index > 0; index--) {
+                if (!/\-1$/.test(list[index])) {
+                    lastName = list[index]
+                    break
+                }
+            }
+            var name = 'screen' + (lastName ? +lastName.replace(/[^0-9]/ig,"") + 1 : 1)
+            console.log('计算新图片名称 name:%j',name)
+            cb(null,name)
+        }],
+        //保存图片
+        saveImage: [ 'getAddName', function (result, cb) {
+            var saveName = result.getAddName
+            saveImage(saveName, function (err) {
+                if (err){
+                    return cb(err)
+                }
+                console.log('保存图片')
+                cb()
+            })
+        }]
+    }, function (err) {
+        if (err && err!= '继续添加') {
+            console.log('继续添加')            
+            return cb(err)
+        }
+        cb()
+    })
+}
+
+//保存图片
+function saveImage (name,cb) {
+    exec("mv " + projectPath + "/public/screen.png " + projectPath + "/public/"+ name +".png", function (err,result) {
+        if (err){
+            console.log('修改图片名称失败')
+            return cb(err)
+        }
+        cb()
+    })
+}
+
+function autoImages () {
+    addImage( function (err){
+        if (err) {
+            console.log(err)       
+            return
+        }
+        autoImages()
+    })
+}
+// autoImages ()
+
+// exec("ls -l /Users/ming/yard/cashBookApi/public |awk '/.png/ {print $NF}'", function (err,result) {
+//     if (err){
+//         console.log(err)
+//     }
+//     var list = result.split('\n')
+//     list.pop()
+//     console.log(list)
+// })
 
 // exec('adb shell input swipe 308 1700 ' + 1148 + ' 1700', function () {
 //     console.log()

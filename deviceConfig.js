@@ -1,9 +1,9 @@
 var CONFIG = {
     //屏幕配置
     "screen":{
-        "minX": 400,
-        "maxX":1240,
-        "minY":860,
+        "minX":400,
+        "maxX":1350,
+        "minY":850,
         "maxY":1560,
         "leftX":176
     },
@@ -40,6 +40,10 @@ var CONFIG = {
     "pullPointEnd" : {
         X:780,
         Y:1520
+    },
+    "reloadPoint" : {
+        X:1280,
+        Y:920
     },
     //滑块速度
     "slideTime" : 7000,

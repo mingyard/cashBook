@@ -21,6 +21,10 @@ var CONFIG = {
         X:1350,
         Y:880
     },
+    "closeAd3": {
+        X:1370,
+        Y:960
+    },
     //关闭确认页
     "closePoint" :{
         X:1350,
@@ -46,7 +50,7 @@ var CONFIG = {
         Y:920
     },
     //滑块速度
-    "slideTime" : 7000,
+    "slideTime" : 15000,
     "projectPath" : "/Users/ming/yard/cashBookApi"
 };
 

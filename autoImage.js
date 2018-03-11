@@ -4,7 +4,7 @@ var exec = require('child_process').exec
 var deviceConfig = require("./deviceConfig.js")
 
 var images = []
-var ids = [1,2,3,4,5,6,7,8]
+var ids = [1,2,3,4,5]
 var number = 0
 
 //分辨率配置
@@ -31,6 +31,11 @@ var closeAd1 = {
 var closeAd2 = {
     X:deviceConfig.closeAd2.X,
     Y:deviceConfig.closeAd2.Y
+}
+
+var closeAd3 = {
+    X:deviceConfig.closeAd3.X,
+    Y:deviceConfig.closeAd3.Y
 }
 
 //关闭确认页
@@ -186,15 +191,12 @@ function contrastImage (callback) {
             var blackImage = result.checkImage.pointArray
             var target = result.target.pointArray
             for (var i = 0; i < ArrayX; i++) {
-                var count = 0
                 for (var j = 0; j < ArrayY; j++) {
                     var blackImageY = getPonitY(blackImage[i][j])
                     var targetY = getPonitY(target[i][j])
-                    if (targetY < blackImageY) {
-                        count++
-                        if (count > 100) {
-                            return cb(null, i + deviceConfig.screen.minX)
-                        }
+                    if (targetY < blackImageY &&  checkFiftyRightPoint(blackImage,target,i,j)) {
+                        console.log('阴影位置 x:%j',i + deviceConfig.screen.minX) 
+                        return cb(null, i + deviceConfig.screen.minX)
                     }
                 }
             }
@@ -289,10 +291,10 @@ function atuoPass (cb) {
         }],
         final:['check', function (result, cb) {
             var point = result.check
-            // console.log('对比完成, 目标点:%j',point)
-            // console.log('移动距离:%j', point - leftX)
+            console.log('对比完成, 目标点:%j',point)
+            console.log('移动距离:%j', point - leftX)
             var endPoint = point + slidePoint.X - leftX
-            // console.log('终点:%j', endPoint)
+            console.log('终点:%j', endPoint)
             slide (slidePoint,{X:endPoint,Y:slidePoint.Y},slideTime,function (err) {
                 if (err) {
                     return cb(err)
@@ -348,6 +350,15 @@ function closeAd (cb) {
             click(closeAd2,500,function (err) {
                 if (err) {
                     return cb('广告 ad2 关闭失败, err:'+err)
+                }
+                cb()
+            })
+        }],
+        //广告3     
+        ad3: ['ad2', function (result, cb) {
+            click(closeAd3,500,function (err) {
+                if (err) {
+                    return cb('广告 ad3 关闭失败, err:'+err)
                 }
                 cb()
             })
@@ -446,19 +457,17 @@ function forever () {
     })
 }
 
-//主方法
-// loadImages(function (err) {
-//     if (err) {
-//         console.log(err)
-//         return
-//     }
-//     forever()
-// }) 
-
+// 主方法
+loadImages(function (err) {
+    if (err) {
+        console.log(err)
+        return
+    }
+    forever()
+}) 
 
 
 //1.0
-
 //智能装在图库
 //获取图片=>对比图片=>保存图
 function addImage (cb) {
@@ -598,6 +607,21 @@ function saveImage (name,cb) {
     })
 }
 
+//检测右50连续阴影像素
+function checkFiftyRightPoint (blackImage,target,x,y) {
+    var count = 0
+    for (var i = 0; i < 50; i++) {
+        if (getPonitY(blackImage[x+i][y]) > getPonitY(target[x+i][y])) {
+            count ++
+            console.log("连续检测 x:%j, y:%j, count:%j",x + deviceConfig.screen.minX,y + deviceConfig.screen.minY,count)
+        } else {
+            break
+        }
+    }
+    return count > 48 ? true : false
+}
+
+//自动生成图库
 function autoImages () {
     addImage( function (err){
         if (err) {

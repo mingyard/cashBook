@@ -131,6 +131,16 @@ exports.getTypeList = function (req, res) {
         if (err) {
             return res.send(400, err)
         }
-        res.send(200, result)
+        data = {
+            single: [],
+            multiple: []
+        }
+        result.forEach(element => {
+            if (element.categorytype == 0)
+                data.single.push(element)
+            if (element.categorytype == 1)
+                data.single.push(element)
+        })
+        res.send(200, data)
     })
 }

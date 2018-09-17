@@ -15,8 +15,8 @@
     "body-parser": "*",
     "morgan": "*",
     "redis": "*",
-    "mongoskin": "*",
-    "mongodb": "*",
+    "mongodb": "1.4.38",
+    "mongoskin": "1.4.13",
     "deepcopy": "*",
     "crypto-js": "*"
   }

@@ -139,7 +139,7 @@ exports.getTypeList = function (req, res) {
             if (element.categorytype == 0)
                 data.single.push(element)
             if (element.categorytype == 1)
-                data.single.push(element)
+                data.multiple.push(element)
         })
         res.send(200, data)
     })

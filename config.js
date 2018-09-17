@@ -28,7 +28,7 @@ var QQ_CONFIG = {
         "port": 6379
     },
     "mongodb": {
-        "master": {url: "cash:book@127.0.0.1:27017/cashBook", opts: {useNewUrlParser:true}},
+        "master": {url: "cash:book@127.0.0.1:27017/cashBook", opts: {}},
         // "slave": {url: "mongodb://b2bStock:b2bStock@10.10.42.26:27017/b2bStock", opts: {}}
     },
     "cache_redis": [

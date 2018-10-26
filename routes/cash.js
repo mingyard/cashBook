@@ -144,3 +144,15 @@ exports.getTypeList = function (req, res) {
         res.send(200, data)
     })
 }
+
+//获取指定类型账本数量
+exports.typeCount = function (req, res) {
+    var openId = req.openId
+    var id = req.param('id')
+    cashTypeCollection.count({openId: openId,categoryid: id}, function (err,result) {
+        if (err) {
+            return res.send(400, err)
+        }
+        res.send(200,result)
+    })
+}

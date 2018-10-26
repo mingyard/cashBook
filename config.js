@@ -8,8 +8,8 @@ var DEV_CONFIG = {
     "apiHost": "http://api.money.126.net",
     "wxApiHost": "https://api.weixin.qq.com",
     "redis": {
-        "host": "39.107.236.41:22",
-        "port": 6379
+        "host": "39.107.236.41",
+        "port": 22
     },
     "mongodb": {
         "master": {url: "mongodb://cash:book@39.107.236.41:27017/cashBook", opts: {}},

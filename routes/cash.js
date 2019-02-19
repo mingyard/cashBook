@@ -5,6 +5,11 @@ var cashTypeCollection = new dbUtils("cashType")
 var async = require('async')
 var _ = require('underscore')
 var moment = require('moment')
+var request = require('request')
+var config = require('../config')
+var fs = require("fs")
+var httpUtil = require('../interface/httpUtil')
+
 //创建记账本
 exports.crateCash = function (req, res) {
     var name = req.param('name')
@@ -154,5 +159,31 @@ exports.typeCount = function (req, res) {
             return res.send(400, err)
         }
         res.send(200,result)
+    })
+}
+
+//上传图片接口
+exports.uploadImage = function (req, res) {
+    var file = req.files.file
+    var options = { 
+            method: 'POST',
+            url: config.uploadHost + "/upload/imagev3",
+            headers: {
+                'content-type': 'multipart/form-data'
+            },
+            formData: { 
+                file: {
+                    value: fs.createReadStream(file.path),
+                    options: {
+                        filename: file.path
+                    }
+                }
+            }
+        }
+        httpUtil.request(options, function (err, result) {
+        if (err) {
+            res.send(400,err)
+        }
+        res.send(200,{imageUrl:result.data.imageUrl})
     })
 }

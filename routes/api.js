@@ -20,3 +20,5 @@ api.post('/cash/create', middleware.getOpenId, cash.crateCash)
 api.post("/cashType/list", middleware.getOpenId, cash.getTypeList)
 //获取指定类型账本数量
 api.post("/cashType/count", middleware.getOpenId, cash.typeCount)
+//上传图片接口
+api.post("/upload/image", middleware.getOpenId, cash.uploadImage)

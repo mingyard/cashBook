@@ -7,9 +7,10 @@ var DEV_CONFIG = {
     "domain": "http://localhost:8888",
     "apiHost": "http://api.money.126.net",
     "wxApiHost": "https://api.weixin.qq.com",
+    "uploadHost": "http://qa-friends.yaotv.tvm.cn/upload/imagev3",
     "redis": {
         "host": "39.107.236.41",
-        "port": 22
+        "port": 6379
     },
     "mongodb": {
         "master": {url: "mongodb://cash:book@39.107.236.41:27017/cashBook", opts: {}},
@@ -23,6 +24,7 @@ var QQ_CONFIG = {
     "domain": "http://mingyard.com:8888",
     "apiHost": "http://api.money.126.net",
     "wxApiHost": "https://api.weixin.qq.com",
+    "uploadHost": "http://friends.yaotv.tvm.cn",
     "redis": {
         "host": "127.0.0.1",
         "port": 6379

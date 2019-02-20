@@ -64,6 +64,56 @@ exports.cashList =  function (req, res) {
     })
 }
 
+//获取账本列表
+exports.info =  function (req, res) {
+    //已经获取到账本信息，直接返回
+    if (req.cash) {
+        return res.send(200,req.cash)
+    }
+
+    //默认查询条件
+    var spec = {
+        openId: openId
+    }
+    //取最近记录一条
+    var options = {
+        sort: {
+            notesTime: -1
+        }
+    }
+    cashCollection.findOne(spec,options,function (err, result){
+        if (err) {
+            return res.send(400, '获取账本失败')
+        }
+        res.send(200, result)
+    })
+}
+
+//验证账本信息
+exports.checkCash = function (turn = true) {
+    return function (req,res,next) {
+        var cashId = req.param('cashId')
+        if (!cashId && turn) {
+            return res.send(400,"参数错误，缺少cashId")
+        }
+        cashCollection.findById(cashId, function (err, result){
+            if (err) {
+                return res.send(400, '获取账本失败')
+            }
+            //判断账本是否存在
+            if (!result) {
+                return res.send(400, '该账本不存在')
+            }
+            //判断是否有读取该账本的权限
+            if (result.openId != req.openId) {
+                return res.send(400, '没有查看该账本权限')
+            }
+            req.cash = result
+            next()
+        })
+    }
+}
+
 //添加账本成员接口
 exports.addMembers = function (req, res) {
     var openIds = req.param('openids')

@@ -15,7 +15,8 @@ exports.crateCash = function (req, res) {
     var name = req.param('name')
     var image = req.param('image')
     var openId = req.param('openId') 
-    if (!name || !image || !openId) {
+    var categoryid = req.param('categoryid')
+    if (!name || !image || !openId || !categoryid) {
         res.send(400, '参数错误！')
     }
     async.auto ({
@@ -24,6 +25,7 @@ exports.crateCash = function (req, res) {
                 name: name,
                 image: image,
                 openId: openId,
+                categoryid: categoryid,
                 createTime: new Date(),
                 strTime: moment().format('YYYY-MM-DD HH:mm:ss')
             }, function (err, result) {
@@ -154,7 +156,7 @@ exports.getTypeList = function (req, res) {
 exports.typeCount = function (req, res) {
     var openId = req.openId
     var id = req.param('id')
-    cashTypeCollection.count({openId: openId,categoryid: id}, function (err,result) {
+    cashCollection.count({openId: openId,categoryid: id}, function (err,result) {
         if (err) {
             return res.send(400, err)
         }

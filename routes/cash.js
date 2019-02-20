@@ -93,9 +93,13 @@ exports.info =  function (req, res) {
 exports.checkCash = function (turn = true) {
     return function (req,res,next) {
         var cashId = req.param('cashId')
-        if (!cashId && turn) {
+        if (!cashId) {
+            if(!turn) {
+                return next()
+            }
             return res.send(400,"参数错误，缺少cashId")
         }
+
         cashCollection.findById(cashId, function (err, result){
             if (err) {
                 return res.send(400, '获取账本失败')

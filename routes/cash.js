@@ -35,7 +35,7 @@ exports.crateCash = function (req, res) {
                 cb(null, result)
             })
         },
-        add: ['create', function (cb, result) {
+        add: ['create', function (result, cb) {
             var cashId = result.create._id
             exports.addMember(cashId, openId, '9999999999999',function (err, result) {
                 if (err) {
@@ -84,7 +84,7 @@ exports.addMembers = function (req, res) {
                 cb(null, result)
             }) 
         }],
-        update: ['members', function (cb, result) {
+        update: ['members', function (result, cb) {
             var members = result.members
             cashCollection.updateById(cashId, {$set: {members: members}}, function (err, result) {
                 if (err) {

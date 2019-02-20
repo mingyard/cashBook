@@ -14,10 +14,10 @@ var httpUtil = require('../interface/httpUtil')
 exports.crateCash = function (req, res) {
     var name = req.param('name')
     var image = req.param('image')
-    var openId = req.param('openId') 
+    var openId = req.openId
     var categoryid = req.param('categoryid')
     if (!name || !image || !openId || !categoryid) {
-        res.send(400, '参数错误！')
+        return res.send(400, '参数错误！')
     }
     async.auto ({
         create: function (cb) {

@@ -21,13 +21,14 @@ exports.crateCash = function (req, res) {
     }
     async.auto ({
         create: function (cb) {
+            var time = new Date().getTime()
             exports.create({
                 name: name,
                 image: image,
                 openId: openId,
                 categoryid: categoryid,
-                createTime: new Date(),
-                notesTime: new Date(), //创建时，添加记录时间
+                createTime: time,
+                notesTime: time, //创建时，添加记录时间
                 strTime: moment().format('YYYY-MM-DD HH:mm:ss')
             }, function (err, result) {
                 if (err) {

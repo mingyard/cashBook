@@ -21,15 +21,15 @@ exports.crateCash = function (req, res) {
     }
     async.auto ({
         create: function (cb) {
-            var time = new Date().getTime()
+            var time = new Date()
             exports.create({
                 name: name,
                 image: image,
                 openId: openId,
                 categoryid: categoryid,
-                createTime: time,
-                notesTime: time, //创建时，添加记录时间
-                strTime: moment().format('YYYY-MM-DD HH:mm:ss')
+                createTime: time.getTime(),
+                notesTime: time.getTime(), //创建时，添加记录时间
+                strTime: moment(time).format('YYYY-MM-DD HH:mm:ss')
             }, function (err, result) {
                 if (err) {
                     return cb(err)

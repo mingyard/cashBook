@@ -49,7 +49,7 @@ exports.crateCash = function (req, res) {
         if (err) {
             return res.send(400, "创建失败")
         }
-        res.send(200, "创建成功")
+        res.send(200, result.create._id.toString())
     }) 
 }
 

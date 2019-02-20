@@ -27,6 +27,7 @@ exports.crateCash = function (req, res) {
                 openId: openId,
                 categoryid: categoryid,
                 createTime: new Date(),
+                notesTime: new Date(), //创建时，添加记录时间
                 strTime: moment().format('YYYY-MM-DD HH:mm:ss')
             }, function (err, result) {
                 if (err) {

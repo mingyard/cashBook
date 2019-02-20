@@ -73,7 +73,7 @@ exports.info =  function (req, res) {
 
     //默认查询条件
     var spec = {
-        openId: openId
+        openId: req.openId
     }
     //取最近记录一条
     var options = {

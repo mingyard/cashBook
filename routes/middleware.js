@@ -78,7 +78,7 @@ exports.getOpenId = function (req, res, next) {
             return res.send(400,'session已过期') 
         }
         var info = JSON.parse(result)
-        req.openId = info.openId
+        req.openId = info.openid
         req.sessionKey = info.sessionKey
         next()
     })

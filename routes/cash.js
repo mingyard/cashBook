@@ -36,7 +36,7 @@ exports.crateCash = function (req, res) {
             })
         },
         add: ['create', function (result, cb) {
-            var cashId = result.create._id
+            var cashId = result.create._id.toString()
             exports.addMember(cashId, openId, '9999999999999',function (err, result) {
                 if (err) {
                     return cb(err)

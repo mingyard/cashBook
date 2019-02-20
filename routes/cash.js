@@ -83,7 +83,7 @@ exports.info =  function (req, res) {
     }
     cashCollection.findOne(spec,options,function (err, result){
         if (err) {
-            return res.send(400, '获取账本失败')
+            return res.send(400, err)
         }
         res.send(200, result)
     })

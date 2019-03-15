@@ -58,15 +58,15 @@ exports.crateCash = function (req, res) {
 
 //删除账本
 exports.del = function (req, res) {
-    var cashId = req.param('cashId')
-    if (!cashId) {
-        return res.send(400,'参数错误：cashId')
+    var cashId = req.cash._id
+    if (cash.status != 1) {
+        res.send(400,"已删除")
     }
     cashCollection.updateById(cashId,{$set:{status:-1}}, function (err, result){
         if (err) {
-            return res.send(400, '获取账本失败')
+            return res.send(400, '删除账本失败')
         }
-        res.send(200, result)
+        res.send(200, '删除成功')
     })
 }
 
@@ -90,7 +90,8 @@ exports.info =  function (req, res) {
 
     //默认查询条件
     var spec = {
-        openId: req.openId
+        openId: req.openId ,
+        status: 1
     }
     //取最近记录一条
     var options = {

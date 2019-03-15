@@ -28,6 +28,7 @@ exports.crateCash = function (req, res) {
                 openId: openId,
                 categoryid: categoryid,
                 createTime: time.getTime(),
+                status: 1, // -1 删除  1正常 
                 notesTime: time.getTime(), //创建时，添加记录时间
                 strTime: moment(time).format('YYYY-MM-DD HH:mm:ss')
             }, function (err, result) {
@@ -53,6 +54,21 @@ exports.crateCash = function (req, res) {
         }
         res.send(200, result.create._id.toString())
     }) 
+}
+
+//删除账本
+exports.del = function (req, res) {
+    var openId = req.openId
+    var cashId = req.param('cashId')
+    if (!cashId) {
+        return res.send(400,'参数错误：cashId')
+    }
+    cashCollection.updateById(cashId,{status:-1}, function (err, result){
+        if (err) {
+            return res.send(400, '获取账本失败')
+        }
+        res.send(200, result)
+    })
 }
 
 //获取账本列表

@@ -62,7 +62,7 @@ exports.del = function (req, res) {
     if (!cashId) {
         return res.send(400,'参数错误：cashId')
     }
-    cashCollection.updateById(cashId,{status:-1}, function (err, result){
+    cashCollection.updateById(cashId,{$set:{status:-1}}, function (err, result){
         if (err) {
             return res.send(400, '获取账本失败')
         }

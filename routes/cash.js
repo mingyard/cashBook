@@ -73,7 +73,7 @@ exports.del = function (req, res) {
 //获取账本列表
 exports.cashList =  function (req, res) {
     var openId = req.openId
-    cashCollection.find({openId: openId}, function (err, result){
+    cashCollection.find({openId: openId, status: 1}, function (err, result){
         if (err) {
             return res.send(400, '获取账本失败')
         }
@@ -90,8 +90,7 @@ exports.info =  function (req, res) {
 
     //默认查询条件
     var spec = {
-        openId: req.openId ,
-        status: 1
+        openId: req.openId
     }
     //取最近记录一条
     var options = {

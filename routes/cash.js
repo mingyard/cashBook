@@ -90,7 +90,8 @@ exports.info =  function (req, res) {
 
     //默认查询条件
     var spec = {
-        openId: req.openId
+        openId: req.openId,
+        status: 1
     }
     //取最近记录一条
     var options = {

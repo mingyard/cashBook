@@ -59,7 +59,7 @@ exports.crateCash = function (req, res) {
 //删除账本
 exports.del = function (req, res) {
     var cashId = req.cash._id
-    if (cash.status != 1) {
+    if (req.cash.status != 1) {
         res.send(400,"已删除")
     }
     cashCollection.updateById(cashId,{$set:{status:-1}}, function (err, result){

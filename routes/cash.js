@@ -58,7 +58,6 @@ exports.crateCash = function (req, res) {
 
 //删除账本
 exports.del = function (req, res) {
-    var openId = req.openId
     var cashId = req.param('cashId')
     if (!cashId) {
         return res.send(400,'参数错误：cashId')

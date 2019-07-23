@@ -103,10 +103,10 @@ exports.login = async (req,res) => {
         data.openid  = sessionKey.openid
         exsits ? await updateUserInfo(data) : await createUser(data)
         const session = await createSession(sessionKey.openid,sessionKey.session_key)
+        res.send(200,session)
     } catch (err) {
         return res.send(400, err)
     }
-    res.send(200,session)
 }
 
 

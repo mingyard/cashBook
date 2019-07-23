@@ -66,7 +66,7 @@ exports.midSend = function () {
 
 //通过session获取openid
 exports.getOpenId = function (req, res, next) {
-    var sessionId = req.param('sessionId')
+    var sessionId = req.body.sessionId
     if (!sessionId) {
         return res.send(400, '参数错误,缺少sessionId')
     }

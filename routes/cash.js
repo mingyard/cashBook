@@ -10,16 +10,16 @@ const httpUtil = require('../interface/httpUtil')
 
 //创建记账本
 exports.crateCash = function (req, res) {
-    var name = req.param('name')
-    var image = req.param('image')
-    var openId = req.openId
-    var categoryid = req.param('categoryid')
+    const name = req.body.name
+    const image = req.body.image
+    const openId = req.openId
+    const categoryid = req.body.categoryid
     if (!name || !image || !openId || !categoryid) {
         return res.send(400, '参数错误！')
     }
     async.auto ({
         create: function (cb) {
-            var time = new Date()
+            const time = new Date()
             exports.create({
                 name: name,
                 image: image,
@@ -56,11 +56,11 @@ exports.crateCash = function (req, res) {
 
 //删除账本
 exports.del = function (req, res) {
-    var cashId = req.cash._id
+    const cashId = req.cash._id
     if (req.cash.status != 1) {
         res.send(400,"已删除")
     }
-    cashCollection.updateById(cashId,{$set:{status:-1}}, function (err, result){
+    cashModel.updateById(cashId,{$set:{status:-1}}, function (err, result){
         if (err) {
             return res.send(400, '删除账本失败')
         }
@@ -70,8 +70,8 @@ exports.del = function (req, res) {
 
 //获取账本列表
 exports.cashList =  function (req, res) {
-    var openId = req.openId
-    cashCollection.find({openId: openId, status: 1}, function (err, result){
+    const openId = req.openId
+    cashModel.find({openId: openId, status: 1}, function (err, result){
         if (err) {
             return res.send(400, '获取账本失败')
         }
@@ -97,7 +97,7 @@ exports.info =  function (req, res) {
             notesTime: -1
         }
     }
-    cashCollection.findOne(spec,options,function (err, result){
+    cashModel.findOne(spec,options,function (err, result){
         if (err) {
             return res.send(400, err)
         }
@@ -107,8 +107,8 @@ exports.info =  function (req, res) {
 
 //验证账本信息
 exports.checkCash = function (turn = true) {
-    return function (req,res,next) {
-        var cashId = req.param('cashId')
+    return (req,res,next) => {
+        const cashId = req.body.cashId
         if (!cashId) {
             if(!turn) {
                 return next()
@@ -116,7 +116,7 @@ exports.checkCash = function (turn = true) {
             return res.send(400,"参数错误，缺少cashId")
         }
 
-        cashCollection.findById(cashId, function (err, result){
+        cashModel.findById(cashId, function (err, result){
             if (err) {
                 return res.send(400, '获取账本失败')
             }
@@ -225,8 +225,8 @@ exports.getTypeList = function (req, res) {
 //获取指定类型账本数量
 exports.typeCount = function (req, res) {
     var openId = req.openId
-    var id = req.param('id')
-    cashCollection.count({openId: openId,categoryid: id}, function (err,result) {
+    var id = req.body.id
+    cashModel.count({openId: openId,categoryid: id}, function (err,result) {
         if (err) {
             return res.send(400, err)
         }
@@ -236,8 +236,8 @@ exports.typeCount = function (req, res) {
 
 //上传图片接口
 exports.uploadImage = function (req, res) {
-    var file = req.files.file
-    var options = { 
+    const file = req.files.file
+    const options = { 
             method: 'POST',
             url: config.uploadHost + "/upload/imagev3",
             headers: {

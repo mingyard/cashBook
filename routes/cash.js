@@ -25,10 +25,7 @@ exports.crateCash = function (req, res) {
                 image: image,
                 openId: openId,
                 categoryid: categoryid,
-                createTime: time.getTime(),
                 status: 1, // -1 删除  1正常 
-                notesTime: time.getTime(), //创建时，添加记录时间
-                strTime: moment(time).format('YYYY-MM-DD HH:mm:ss')
             }, function (err, result) {
                 if (err) {
                     return cb(err)
@@ -94,7 +91,7 @@ exports.info =  function (req, res) {
     //取最近记录一条
     var options = {
         sort: {
-            notesTime: -1
+            createdAt: -1
         }
     }
     cashModel.findOne(spec,options,function (err, result){
@@ -136,8 +133,8 @@ exports.checkCash = function (turn = true) {
 
 //添加账本成员接口
 exports.addMembers = function (req, res) {
-    var openIds = req.param('openids')
-    var cashId = req.param('cashId')
+    const openIds = req.param('openids')
+    const cashId = req.param('cashId')
     async.auto({
         add: function (cb) {
             async.eachSeries(openIds, function (item) {
@@ -224,8 +221,8 @@ exports.getTypeList = function (req, res) {
 
 //获取指定类型账本数量
 exports.typeCount = function (req, res) {
-    var openId = req.openId
-    var id = req.body.id
+    const openId = req.openId
+    const id = req.body.id
     cashModel.count({openId: openId,categoryid: id}, function (err,result) {
         if (err) {
             return res.send(400, err)

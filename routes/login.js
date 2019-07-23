@@ -57,7 +57,7 @@ function createUser (data) {
 //更新用户信息
 function updateUserInfo (data) {
     return new Promise ((resolve, reject) => {
-        userModel.updateOne({openid}, {$set:data}, (err, result) => {
+        userModel.updateOne({openid:data.openid}, {$set:data}, (err, result) => {
             if (err) {
                 return reject(err)
             }
@@ -105,8 +105,8 @@ exports.login = async (req,res) => {
         const session = await createSession(sessionKey.openid,sessionKey.session_key)
         res.send(200,session)
     } catch (err) {
-        console.log('[%j] login ,code:%j, info:%j, err:%j', new Date().toLocaleString(), code, info, err)        
-        return res.send(400, err)
+        console.log('[%j] login ,code:%j, info:%j, err:%j', new Date().toLocaleString(), code, info, err.stack)        
+        res.send(400, err.message)
     }
 }
 
@@ -133,3 +133,19 @@ exports.getSessionInfo = function (session, cb) {
         cb(null, result)
     })
 }
+
+async function test (info) {
+    const res = updateUserInfo(info)
+    console.log(res)
+}
+
+test(
+    {
+        "avatarUrl" : "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTIUCv6EHfwWCEfI66f9rUHpT0ibrmzY9k0pKW3IVb48SLYnU8ZPJWuSqzTOOMicykVQ5gdtkn9AToeA/132",
+        "city" : "",
+        "country" : "China",
+        "gender" : "1",
+        "language" : "zh_CN",
+        "nickName" : "筑梦"
+    }
+)

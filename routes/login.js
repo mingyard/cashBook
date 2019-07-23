@@ -90,8 +90,8 @@ function createSession (openid,sessionKey) {
  * @param info  用户信息
  */
 exports.login = async (req,res) => {
-    const code = req.params.code
-    const info = req.params.info
+    const code = req.params('code')
+    const info = req.params('info')
 
     if (!code || !info) {
         return res.send(400,'参数错误')

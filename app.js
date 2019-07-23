@@ -1,10 +1,11 @@
-var middleware = require('./routes/middleware.js')
-var express = require('express');
-var app = express();
-var config = require('./config.js');
-var api = require("./routes/api.js");
-// var time = require("./time")
-// var input = require("./input")
+const middleware = require('./routes/middleware.js')
+const express = require('express');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+const app = express();
+const config = require('./config');
+const api = require("./routes/api");
+
 
 process.on('uncaughtException', function (err) {
     console.log('[Inside \'uncaughtException\' event]' + err.stack || err.message);
@@ -21,16 +22,14 @@ app.all('*', function (req, res, next) {
 });
 
 var logToken = '[:date] - :method :url :status :res[content-length] - :response-time ms';
-express.logger.token('date', function () {
+logger.token('date', function () {
     return new Date().toLocaleString();
 });
-app.use(express.logger(logToken))
-app.use(express.bodyParser({
-    maxFieldsSize: 1 * 1024 * 1024
-}))
+app.use(logger(logToken))
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use(middleware.midSend())
-app.use(app.router)
 app.use('/api', api)
 
 exports.server = require('http').createServer(app)

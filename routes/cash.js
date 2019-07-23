@@ -1,14 +1,12 @@
-var redisClient = require('../redis/redis_client.js').redisClient()
-var dbUtils = require('../mongoSkin/mongoUtils.js')
-var cashCollection= new dbUtils("cash")
-var cashTypeCollection = new dbUtils("cashType")
-var async = require('async')
-var _ = require('underscore')
-var moment = require('moment')
-var request = require('request')
-var config = require('../config')
-var fs = require("fs")
-var httpUtil = require('../interface/httpUtil')
+const redisClient = require('../redis/redis_client.js').redisClient()
+const cashModel = require('../models/Cash');
+const cashTypeModel = require('../models/CashType');
+const async = require('async')
+const _ = require('underscore')
+const moment = require('moment')
+const config = require('../config')
+const fs = require("fs")
+const httpUtil = require('../interface/httpUtil')
 
 //创建记账本
 exports.crateCash = function (req, res) {
@@ -90,7 +88,8 @@ exports.info =  function (req, res) {
 
     //默认查询条件
     var spec = {
-        openId: req.openId
+        openId: req.openId,
+        status: 1
     }
     //取最近记录一条
     var options = {
@@ -157,7 +156,7 @@ exports.addMembers = function (req, res) {
         }],
         update: ['members', function (result, cb) {
             var members = result.members
-            cashCollection.updateById(cashId, {$set: {members: members}}, function (err, result) {
+            cashModel.updateById(cashId, {$set: {members: members}}, function (err, result) {
                 if (err) {
                     return cb(err)
                 }
@@ -175,7 +174,7 @@ exports.addMembers = function (req, res) {
 
 //创建账本
 exports.create = function (param, cb) {
-    cashCollection.save(param, function (err, result) {
+    cashModel.save(param, function (err, result) {
         if (err) {
             return cb(err)
         }
@@ -205,7 +204,7 @@ exports.getMembers = function (cashId, cb) {
 
 //获取账本类型
 exports.getTypeList = function (req, res) {
-    cashTypeCollection.find({status:"1"}, function (err, result) {
+    cashTypeModel.find({status:"1"}, function (err, result) {
         if (err) {
             return res.send(400, err)
         }

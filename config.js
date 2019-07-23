@@ -9,15 +9,13 @@ var DEV_CONFIG = {
     "wxApiHost": "https://api.weixin.qq.com",
     "uploadHost": "http://qa-friends.yaotv.tvm.cn/upload/imagev3",
     "redis": {
-        "host": "39.107.236.41",
-        "port": 6379
+        "host": "59.110.229.198",
+        "port": 6379,
+        "password": 'ming$8888'
     },
     "mongodb": {
-        "master": {url: "mongodb://cash:book@39.107.236.41:27017/cashBook", opts: {}},
-        // "slave": {url: "mongodb://b2bStock:b2bStock@39.107.236.41:22/b2bStock", opts: {}}
+        "master": {url: "mongodb://cash:book@59.110.229.198/cashBook", opts: {}},
     },
-    "cache_redis": [
-    ]
 }
 var QQ_CONFIG = {
     "NODE_ENV": "qq",
@@ -27,14 +25,12 @@ var QQ_CONFIG = {
     "uploadHost": "http://friends.yaotv.tvm.cn",
     "redis": {
         "host": "127.0.0.1",
-        "port": 6379
+        "port": 6379,
+        "password": 'ming$8888'
     },
     "mongodb": {
         "master": {url: "mongodb://cash:book@127.0.0.1:27017/cashBook", opts: {useNewUrlParser:true}},
-        // "slave": {url: "mongodb://b2bStock:b2bStock@10.10.42.26:27017/b2bStock", opts: {}}
     },
-    "cache_redis": [
-    ]
 };
 
 var CONFIG = {

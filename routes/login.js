@@ -1,112 +1,114 @@
-var secret = require("../secret")
-var config = require("../config")
-var httpUtil = require('../interface/httpUtil')
-var moment = require('moment')
-var dbUtils = require('../mongoSkin/mongoUtils.js')
-var userCollection= new dbUtils("user")
-var async = require('async')
-var MD5 = require("crypto-js/md5")
-var redisClient = require('../redis/redis_client.js').redisClient()
+const secret = require("../secret")
+const config = require("../config")
+const httpUtil = require('../interface/httpUtil')
+const moment = require('moment')
+const userModel = require('../models/User');
+const async = require('async')
+const MD5 = require("crypto-js/md5")
+const redisClient = require('../redis/redis_client.js').redisClient()
 
 //生成sessionKey
-exports.getSessionKey = function (code, cb) {
-    var url = config.wxApiHost + '/sns/jscode2session'
-    var param = {
-        appid: secret.AppID,
-        secret: secret.AppSecret,
-        js_code: code,
-        grant_type: 'authorization_code'
-    }
-    httpUtil.getJSON(url, param, function (err, result) {
-        if (err) {
-            return cb(err)
+function getSessionKey (code) {
+    return new Promise((resolve, reject) => {
+        const url = config.wxApiHost + '/sns/jscode2session'
+        const param = {
+            appid: secret.AppID,
+            secret: secret.AppSecret,
+            js_code: code,
+            grant_type: 'authorization_code'
         }
-        if (result.errcode) {
-            return cb(result.errmsg)
-        }
-        cb(null, result)
+        httpUtil.getJSON(url, param, (err, result) => {
+            if (err) {
+                return reject(err)
+            }
+            if (result.errcode) {
+                return reject(result.errmsg)
+            }
+            resolve(result)
+        })
+    })
+}
+
+//检测用户是否存在
+function userExsits(openid) {
+    return new Promise ((resolve, reject) => {
+        userModel.findOne({openid}, (err, result) => {
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
     })
 }
 
 //创建用户
-exports.createUser = function (openid, cb) {
-    var time = new Date()
-    var data = {
-        _id: openid,
-        createTime:  time.getTime(),
-        strTime: moment(time).format('YYYY-MM-DD HH:mm:ss')
-    }
-    async.auto({
-        check: function (cb) {
-            userCollection.findById(openid, function (err, result) {
-                if (err) {
-                    return cb(err)
-                }
-                cb(null, result)
-            })
-        },
-        save: [ 'check', function (result, cb) {
-            var check = result.check
-            if (check) {
-                return cb()
+function createUser (data) {
+    return new Promise ((resolve, reject) => {
+        userModel.create(data, (err, result) => {
+            console.log('[%j] login.createUser ,data:%j, result:%j, err:%j', new Date().toLocaleString(),data, result, err)        
+            if (err) {
+                return reject(err)
             }
-            userCollection.save(data, function (err, result) {
-                if (err) {
-                    return cb(err)
-                }
-                cb(null, result)
-            })
-        }]
-    }, function (err, result) {
-        console.log('[%j] login.createUser ,data:%j, result:%j, err:%j', new Date().toLocaleString(),data, result,err)        
-        if (err) {
-            return cb(err)
-        }
-        cb(null, result.save ? result.save._id : null)
+            resolve(result)
+        })
     })
 }
 
-//登录
-exports.login = function (req, res) {
-    var code = req.param('code')
-    if (!code) {
-        return res.send(400,'参数错误')
-    }
-    async.auto({
-        getSessionKey: function (cb) {
-            exports.getSessionKey(code, function (err, result) {
-                if (err) {
-                    return cb(err)
-                }
-                cb(null, result)
-            })
-        },
-        createUser: [ 'getSessionKey', function (result, cb) {
-            var openid = result.getSessionKey.openid
-            exports.createUser(openid, function (err, result) {
-                if (err) {
-                    return cb(err)
-                }
-                cb(null, result)
-            })
-        }],
-        createSession: [ 'createUser', function (result, cb) {
-            var info = result.getSessionKey
-            exports.createSession(info.openid, info.session_key, function (err, result) {
-                if (err) {
-                    return cb(err)
-                }
-                cb(null, result)
-            })
-        }]
-    }, function (err, result) {
-        console.log('[%j] login.login ,code:%j, result:%j, err:%j', new Date().toLocaleString(),code, result,err)                
-        if (err) {
-            return res.send(400, err)
-        }
-        res.send(200, result.createSession)
+//更新用户信息
+function updateUserInfo (data) {
+    return new Promise ((resolve, reject) => {
+        userModel.updateOne({openid}, {$set:data}, (err, result) => {
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
     })
 }
+
+//创建session
+function createSession (openid,sessionKey) {
+    return new Promise((resolve,reject) => {
+        const session = MD5(openid+sessionKey).toString()
+        const param = {
+            openid,
+            sessionKey
+        }
+        redisClient.set(session, JSON.stringify(param), function (err) {
+            if (err) {
+                return reject(err)
+            }
+            redisClient.expire(session, 604800)
+            resolve(session)
+        })
+    }) 
+}
+
+/**
+ * 登录接口
+ * @param code  微信动态code
+ * @param info  用户信息
+ */
+exports.login = async (req,res) => {
+    const code = req.param('code')
+    const info = req.param('info')
+
+    if (!code || !info) {
+        return res.send(400,'参数错误')
+    }
+    try {
+        const sessionKey = await getSessionKey(code)
+        const exsits = await userExsits(sessionKey.openid)
+        let data = info
+        data.openid  = sessionKey.openid
+        exsits ? await updateUserInfo(data) : await createUser(data)
+        const session = await createSession(sessionKey.openid,sessionKey.session_key)
+    } catch (err) {
+        return res.send(400, err)
+    }
+    res.send(200,session)
+}
+
 
 //检查session
 exports.checkSession = function (session, cb) {
@@ -115,22 +117,6 @@ exports.checkSession = function (session, cb) {
             return cb(err)
         }
         cb(null,result)
-    })
-}
-
-//创建session
-exports.createSession = function (openid,sessionKey,cb) {
-    var session = MD5(openid+sessionKey).toString()
-    var param = {
-        openid : openid,
-        sessionKey : sessionKey
-    }
-    redisClient.set(session, JSON.stringify(param), function (err) {
-        if (err) {
-            return cb(err)
-        }
-        redisClient.expire(session, 604800, function () {})
-        cb(null, session)
     })
 }
 
@@ -144,24 +130,5 @@ exports.getSessionInfo = function (session, cb) {
             return cb('session已过期') 
         }
         cb(null, result)
-    })
-}
-
-//更新用户信息
-exports.updateUserInfo =  function (req, res) {
-    var opneid = req.openid
-    var info = {
-        avatarUrl: req.param('avatarUrl'),
-        city: req.param('city'),
-        country: req.param('country'),
-        gender: req.param('gender'),
-        language: req.param('language'),
-        nickName: req.param('nickName')
-    }
-    userCollection.updateById(opneid, {$set:info}, function (err, result) {
-        if (err) {
-            return res.send(400,err)
-        }
-        res.send(200, result)
     })
 }

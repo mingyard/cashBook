@@ -90,8 +90,8 @@ function createSession (openid,sessionKey) {
  * @param info  用户信息
  */
 exports.login = async (req,res) => {
-    const code = req.param('code')
-    const info = req.param('info')
+    const code = req.params.code
+    const info = req.params.info
 
     if (!code || !info) {
         return res.send(400,'参数错误')
@@ -105,6 +105,7 @@ exports.login = async (req,res) => {
         const session = await createSession(sessionKey.openid,sessionKey.session_key)
         res.send(200,session)
     } catch (err) {
+        console.log('[%j] login ,code:%j, info:%j, err:%j', new Date().toLocaleString(), code, info, err)        
         return res.send(400, err)
     }
 }

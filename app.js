@@ -2,6 +2,7 @@ const middleware = require('./routes/middleware.js')
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const multer = require(multer);
 const app = express();
 const config = require('./config');
 const api = require("./routes/api");
@@ -28,6 +29,7 @@ logger.token('date', function () {
 app.use(logger(logToken))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(multer());
 
 app.use(middleware.midSend())
 app.use('/api', api)

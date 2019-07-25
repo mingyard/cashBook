@@ -172,7 +172,7 @@ exports.addMembers = function (req, res) {
 
 //创建账本
 exports.create = function (param, cb) {
-    cashModel.save(param, function (err, result) {
+    cashModel.create(param, function (err, result) {
         if (err) {
             return cb(err)
         }

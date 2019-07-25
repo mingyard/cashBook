@@ -58,7 +58,7 @@ exports.del = function (req, res) {
     if (req.cash.status != 1) {
         res.send(400,"已删除")
     }
-    cashModel.updateById(cashId,{$set:{status:-1}}, function (err, result){
+    cashModel.updateOne({_id:cashId},{$set:{status:-1}}, function (err, result){
         if (err) {
             return res.send(400, '删除账本失败')
         }
@@ -154,7 +154,7 @@ exports.addMembers = function (req, res) {
         }],
         update: ['members', function (result, cb) {
             var members = result.members
-            cashModel.updateById(cashId, {$set: {members: members}}, function (err, result) {
+            cashModel.updateOne({_id:cashId}, {$set: {members: members}}, function (err, result) {
                 if (err) {
                     return cb(err)
                 }

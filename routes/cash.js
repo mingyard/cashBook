@@ -95,7 +95,7 @@ exports.info =  function (req, res) {
             createdAt: -1
         }
     }
-    cashModel.findOne(spec,options,function (err, result){
+    cashModel.findOne(spec,{},options,function (err, result){
         if (err) {
             return res.send(400, err)
         }

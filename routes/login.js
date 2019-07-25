@@ -133,19 +133,3 @@ exports.getSessionInfo = function (session, cb) {
         cb(null, result)
     })
 }
-
-async function test (info) {
-    const res = updateUserInfo(info)
-    console.log(res)
-}
-
-test(
-    {
-        "avatarUrl" : "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTIUCv6EHfwWCEfI66f9rUHpT0ibrmzY9k0pKW3IVb48SLYnU8ZPJWuSqzTOOMicykVQ5gdtkn9AToeA/132",
-        "city" : "",
-        "country" : "China",
-        "gender" : "1",
-        "language" : "zh_CN",
-        "nickName" : "筑梦"
-    }
-)

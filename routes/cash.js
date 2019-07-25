@@ -24,7 +24,7 @@ exports.crateCash = function (req, res) {
             exports.create({
                 name: name,
                 image: image,
-                openId: openId,
+                openid: openId,
                 categoryid: categoryid,
                 status: 1, // -1 删除  1正常 
             }, function (err, result) {
@@ -69,7 +69,7 @@ exports.del = function (req, res) {
 //获取账本列表
 exports.cashList =  function (req, res) {
     const openId = req.openId
-    cashModel.find({openId: openId, status: 1}, function (err, result){
+    cashModel.find({openid: openId, status: 1}, function (err, result){
         if (err) {
             return res.send(400, '获取账本失败')
         }
@@ -86,7 +86,7 @@ exports.info =  function (req, res) {
 
     //默认查询条件
     var spec = {
-        openId: req.openId,
+        openid: req.openId,
         status: 1
     }
     //取最近记录一条
@@ -224,7 +224,7 @@ exports.getTypeList = function (req, res) {
 exports.typeCount = function (req, res) {
     const openId = req.openId
     const id = req.body.id
-    cashModel.count({openId: openId,categoryid: id}, function (err,result) {
+    cashModel.count({openid: openId,categoryid: id}, function (err,result) {
         if (err) {
             return res.send(400, err)
         }

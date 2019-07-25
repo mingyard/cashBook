@@ -19,7 +19,7 @@ api.post('/cash/del', middleware.getOpenId, cash.checkCash(), cash.del)
 //获取账本信息
 api.post("/cash/info", middleware.getOpenId, cash.checkCash(false), cash.info)
 //获取账本类型列表
-api.post("/cashType/list"/*, middleware.getOpenId*/, cash.getTypeList)
+api.post("/cashType/list", middleware.getOpenId, cash.getTypeList)
 //获取指定类型账本数量
 api.post("/cashType/count", middleware.getOpenId, cash.typeCount)
 //上传图片接口

@@ -123,7 +123,7 @@ exports.checkCash = function (turn = true) {
                 return res.send(400, '该账本不存在')
             }
             //判断是否有读取该账本的权限
-            if (result.openId != req.openId) {
+            if (result.openid != req.openId) {
                 return res.send(400, '没有查看该账本权限')
             }
             req.cash = result

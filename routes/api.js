@@ -4,6 +4,7 @@ const shareInfo = require('./shareInfo')
 const login = require('./login')
 const middleware = require('./middleware')
 const cash = require('./cash')
+const multer = require('multer');
 module.exports = api;
 
 api.get('/share/info', shareInfo.getNowShareInfo)
@@ -22,4 +23,4 @@ api.post("/cashType/list"/*, middleware.getOpenId*/, cash.getTypeList)
 //获取指定类型账本数量
 api.post("/cashType/count", middleware.getOpenId, cash.typeCount)
 //上传图片接口
-api.post("/upload/image", middleware.getOpenId, cash.uploadImage)
+api.post("/upload/image", multer().single('file'),/*middleware.getOpenId,*/ cash.uploadImage)

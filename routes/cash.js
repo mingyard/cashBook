@@ -6,6 +6,7 @@ const _ = require('underscore')
 const moment = require('moment')
 const config = require('../config')
 const fs = require("fs")
+const stream = require('stream')
 const httpUtil = require('../interface/httpUtil')
 
 //创建记账本
@@ -233,26 +234,38 @@ exports.typeCount = function (req, res) {
 
 //上传图片接口
 exports.uploadImage = function (req, res) {
-    const file = req.files.file
+    const file = req.file
     const options = { 
-            method: 'POST',
-            url: config.uploadHost + "/upload/imagev3",
-            headers: {
-                'content-type': 'multipart/form-data'
-            },
-            formData: { 
-                file: {
-                    value: fs.createReadStream(file.path),
-                    options: {
-                        filename: file.path
-                    }
+        method: 'POST',
+        url: config.uploadHost + "/upload/imagev3",
+        headers: {
+            'content-type': 'multipart/form-data'
+        },
+        formData: { 
+            file: {
+                value: bufferToStream(file.buffer),
+                options: {
+                    filename: file.originalname,
+                    contentType: file.mimetype,
+                    knownLength: file.size,
                 }
             }
         }
-        httpUtil.request(options, function (err, result) {
+    }
+    httpUtil.request(options, function (err, result) {
         if (err) {
-            res.send(400,err)
+            return res.send(400,err)
+        }
+        if (result.code !== 200) {
+            return res.send(400,result.message)
         }
         res.send(200,{imageUrl:result.data.imageUrl})
     })
 }
+
+function bufferToStream(buffer) {
+    const duplexStream = new stream.Duplex();
+    duplexStream.push(buffer);
+    duplexStream.push(null);
+    return duplexStream;
+  }

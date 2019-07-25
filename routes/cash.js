@@ -224,7 +224,7 @@ exports.getTypeList = function (req, res) {
 exports.typeCount = function (req, res) {
     const openId = req.openId
     const id = req.body.id
-    cashModel.count({openid: openId,categoryid: id}, function (err,result) {
+    cashModel.count({openid: openId,categoryid: id, status: 1}, function (err,result) {
         if (err) {
             return res.send(400, err)
         }

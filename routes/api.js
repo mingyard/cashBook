@@ -16,8 +16,8 @@ api.post('/cash/list', middleware.getOpenId, cash.cashList)
 //创建记账本
 api.post('/cash/create', middleware.getOpenId, cash.crateCash)
 api.post('/cash/del', middleware.getOpenId, cash.checkCash(), cash.del)
-//获取账本信息
-api.post("/cash/info", middleware.getOpenId, cash.checkCash(false), cash.info)
+//获取最后修改账本信息
+api.post("/cash/lastCashInfo", middleware.getOpenId, cash.lastCashInfo)
 //获取账本类型列表
 api.post("/cashType/list", middleware.getOpenId, cash.getTypeList)
 //获取指定类型账本数量

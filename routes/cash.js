@@ -8,6 +8,7 @@ const config = require('../config')
 const fs = require("fs")
 const stream = require('stream')
 const httpUtil = require('../interface/httpUtil')
+const userModel = require('../models/User');
 
 //创建记账本
 exports.crateCash = function (req, res) {
@@ -77,29 +78,67 @@ exports.cashList =  function (req, res) {
     })
 }
 
-//获取账本列表
-exports.info =  function (req, res) {
-    //已经获取到账本信息，直接返回
-    if (req.cash) {
-        return res.send(200,req.cash)
-    }
-
-    //默认查询条件
-    var spec = {
-        openid: req.openId,
-        status: 1
-    }
-    //取最近记录一条
-    var options = {
-        sort: {
-            createdAt: -1
+//获取最后一次修改的账本
+exports.lastCashInfo =  async (req, res) => {
+    try {
+        let cashInfo = (await lastCash(req.openId)).toObject()
+        cashInfo.members = []
+        const members = await getMembersArray(cashInfo._id)
+        for (const item of members) {
+            const {openid,nickName,avatarUrl} = (await memberInfo(item)).toObject()
+            cashInfo.members.push({openid,nickName,avatarUrl})
         }
-    }
-    cashModel.findOne(spec,{},options,function (err, result){
+        res.send(200,cashInfo)
+    } catch (err) {
         if (err) {
-            return res.send(400, err)
+            return res.send(400,err)
         }
-        res.send(200, result)
+    }
+}
+
+//获取最后一次修改的账本
+function lastCash(openId) {
+    return new Promise((resolve, reject)=>{
+        //默认查询条件
+        var spec = {
+            openid: openId,
+            status: 1
+        }
+        //取最近记录一条
+        var options = {
+            sort: {
+                updatedAt: -1
+            }
+        }
+        cashModel.findOne(spec,{},options,function (err, result){
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
+    })
+}
+
+//获取成员列表
+function getMembersArray(cashId) {
+    return new Promise((resolve,reject)=>{
+        redisClient.hgetall(cashId, (err, result) => {
+            if (err) {
+                return reject(err)
+            }
+            resolve(_.keys(result))
+        })
+    })
+}
+
+function memberInfo(openid) {
+    return new Promise((resolve,reject)=> {
+        userModel.findOne({openid}, (err, result) => {
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
     })
 }
 
@@ -192,7 +231,7 @@ exports.addMember = function (cashId, userId, time, cb) {
 
 //获取账本成员redis数据
 exports.getMembers = function (cashId, cb) {
-    redisClient.hget(cashId, function (err, result) {
+    redisClient.hgetall(cashId, function (err, result) {
         if (err) {
             return cb(err)
         }

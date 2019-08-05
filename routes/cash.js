@@ -81,7 +81,7 @@ exports.cashList =  function (req, res) {
 //获取最后一次修改的账本
 exports.lastCashInfo =  async (req, res) => {
     try {
-        let cashInfo = (await lastCash(req.openId)).toObject()
+        let cashInfo = req.cash ? (req.cash).toObject() : (await lastCash(req.openId)).toObject()
         cashInfo.members = []
         const members = await getMembersArray(cashInfo._id)
         for (const item of members) {

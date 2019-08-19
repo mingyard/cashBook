@@ -134,9 +134,9 @@ function lastCash(openId) {
     })
 }
 
-function memberInfo(openid) {
+function memberInfo(userid) {
     return new Promise((resolve,reject)=> {
-        userModel.findOne({openid}, (err, result) => {
+        userModel.findOne({_id:userid}, (err, result) => {
             if (err) {
                 return reject(err)
             }

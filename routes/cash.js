@@ -10,71 +10,86 @@ const stream = require('stream')
 const httpUtil = require('../interface/httpUtil')
 const userModel = require('../models/User');
 
-//创建记账本
-exports.crateCash = function (req, res) {
+//创建账本
+exports.crateCash = async (req,res) => {
     const name = req.body.name
     const image = req.body.image
-    const openId = req.openId
+    const userid = req.userid
     const categoryid = req.body.categoryid
-    if (!name || !image || !openId || !categoryid) {
+    if (!name || !image || !userid || !categoryid) {
         return res.send(400, '参数错误！')
     }
-    async.auto ({
-        create: function (cb) {
-            const time = new Date()
-            exports.create({
-                name: name,
-                image: image,
-                openid: openId,
-                categoryid: categoryid,
-                status: 1, // -1 删除  1正常 
-            }, function (err, result) {
-                if (err) {
-                    return cb(err)
-                }
-                cb(null, result)
-            })
-        },
-        add: ['create', function (result, cb) {
-            var cashId = result.create._id.toString()
-            exports.addMember(cashId, openId, '9999999999999',function (err, result) {
-                if (err) {
-                    return cb(err)
-                }
-                cb(null, result)
-            })
-        }]
-    }, function (err, result) {
-        console.log('[%j] cash.create , result:%j, err:%j', new Date().toLocaleString(), result, err)                
-        if (err) {
-            return res.send(400, "创建失败")
-        }
-        res.send(200, result.create._id.toString())
-    }) 
+    const param = {
+        name: name,
+        image: image,
+        userid: userid,
+        categoryid: categoryid,
+        status: 1, // -1 删除  1正常
+    }
+    try {
+        const cash = await createCash(param)
+        await addCashMember(cash.id,'9999999999999')
+        await addCash(userid,cash.id)
+        res.send(200,cash.id)
+    } catch (err) {
+        console.log('[%j] crateCash , info:%j, err:%j', new Date().toLocaleString(), param, err.stack)        
+        res.send(400, err.message)
+    }
 }
 
 //删除账本
-exports.del = function (req, res) {
-    const cashId = req.cash._id
+exports.del = async (req,res) => {
+    const cashid = req.cash._id
     if (req.cash.status != 1) {
         res.send(400,"已删除")
     }
-    cashModel.updateOne({_id:cashId},{$set:{status:-1}}, function (err, result){
-        if (err) {
-            return res.send(400, '删除账本失败')
-        }
-        res.send(200, '删除成功')
+    try {
+        await changeCash(cashid)
+        await delCashMember(cashid,userid)
+        await delCash(userid,cashid)
+    } catch (err) {
+        console.log('[%j] del , cashid:%j, err:%j', new Date().toLocaleString(), cashid, err.stack)        
+        return res.send(400,err.message)
+    }
+}
+
+//删除账本
+function changeCash (cashid) {
+    return new Promise((resolve,reject)=>{
+        cashModel.updateOne({_id:cashid},{$set:{status:-1}},(err, result) =>{
+            if (err) {
+                return resolve(err)
+            }
+            resolve(result)
+        })
     })
 }
 
 //获取账本列表
-exports.cashList =  function (req, res) {
-    const openId = req.openId
-    cashModel.find({openid: openId, status: 1}, function (err, result){
-        if (err) {
-            return res.send(400, '获取账本失败')
+exports.cashList =  async (req, res) => {
+    try {
+        const list = await allCash(req.userid)
+        let listInfo = []
+        for (let cashid of _.keys(list)) {
+            let info = await cashInfo(cashid)
+            listInfo.push(info)
         }
-        res.send(200, result)
+        res.send(200,listInfo)
+    } catch (err) {
+        console.log('[%j] cashList , userid:%j, err:%j', new Date().toLocaleString(), userid, err.stack)        
+        return res.send(400,err.message)
+    }
+}
+
+//获取账本信息
+function cashInfo (cashid) {
+    return new Promise((res,rej)=>{
+        cashModel.findOne({_id: cashid, status: 1}, function (err, result){
+            if (err) {
+                return rej(err)
+            }
+            res(result)
+        })
     })
 }
 
@@ -162,7 +177,7 @@ exports.checkCash = function (turn = true) {
                 return res.send(400, '该账本不存在')
             }
             //判断是否有读取该账本的权限
-            if (result.openid != req.openId) {
+            if (result.userid != req.userid) {
                 return res.send(400, '没有查看该账本权限')
             }
             req.cash = result
@@ -219,6 +234,41 @@ exports.create = function (param, cb) {
     })
 }
 
+//创建账本
+function createCash(param) {
+    return new Promise((resolve,reject) => {
+        cashModel.create(param,(err,result) => {
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
+    })
+}
+
+//添加账本成员
+function addCashMember(cashId,userId,time) {
+    return new Promise((resolve,reject) => {
+        redisClient.hset("cash_"+cashId,userId,time,(err,result) => {
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
+    })
+}
+//删除账本成员
+function delCashMember(cashid,userid) {
+    return new Promise((resolve,reject) => {
+        redisClient.hdel("cash_"+cashId,userId,(err,result) => {
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
+    })
+}
+
 //添加账本成员
 exports.addMember = function (cashId, userId, time, cb) {
     redisClient.hset(cashId, userId, time, function (err, result) {
@@ -229,6 +279,18 @@ exports.addMember = function (cashId, userId, time, cb) {
     })
 }
 
+//获取账本成员
+function getMembers(cashid) {
+    return new Promise((resolve,reject)=>{
+        redisClient.hgetall("cash_" + cashid,(err,result)=>{
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
+    })
+}
+
 //获取账本成员redis数据
 exports.getMembers = function (cashId, cb) {
     redisClient.hgetall(cashId, function (err, result) {
@@ -236,6 +298,42 @@ exports.getMembers = function (cashId, cb) {
             return cb(err)
         }
         cb(null, _.keys(result))
+    })
+}
+
+//添加用户参与账本
+function addCash(userid,cashid) {
+    return new Promise((resolve,reject) => {
+        redisClient.zadd('cashList_' + userid,time,cashid,(err,result)=>{
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
+    })
+}
+
+//删除用户参与账本
+function delCash(userid,cashid) {
+    return new Promise((resolve,reject) => {
+        redisClient.zrem('cashList_' + userid,cashid,(err,result)=>{
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
+    })
+}
+
+//获取用户参与账本列表
+function allCash(userid) {
+    return new Promise((resolve,reject) => {
+        redisClient.zrangebyscore('cashList_' + userid,'-inf','+inf',(err,result)=> {
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
     })
 }
 
@@ -259,6 +357,18 @@ exports.getTypeList = function (req, res) {
     })
 }
 
+//获取账本类型
+function typeList() {
+    return new Promise((resolve,reject) => {
+        cashTypeModel.find({status:"1"}, function (err, result) {
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
+    })
+}
+
 //获取指定类型账本数量
 exports.typeCount = function (req, res) {
     const openId = req.openId
@@ -268,6 +378,18 @@ exports.typeCount = function (req, res) {
             return res.send(400, err)
         }
         res.send(200,result)
+    })
+}
+
+//获取指定类型账本数量
+function typeCount (param) {
+    return new Promise((resolve,reject) => {
+        cashModel.count(param, function (err,result) {
+            if (err) {
+                return reject(err)
+            }
+            resolve(result)
+        })
     })
 }
 
@@ -307,4 +429,4 @@ function bufferToStream(buffer) {
     duplexStream.push(buffer);
     duplexStream.push(null);
     return duplexStream;
-  }
+}

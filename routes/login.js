@@ -3,7 +3,6 @@ const config = require("../config")
 const httpUtil = require('../interface/httpUtil')
 const moment = require('moment')
 const userModel = require('../models/User');
-const async = require('async')
 const MD5 = require("crypto-js/md5")
 const redisClient = require('../redis/redis_client.js').redisClient()
 
@@ -22,7 +21,7 @@ function getSessionKey (code) {
                 return reject(err)
             }
             if (result.errcode) {
-                return reject(result.errmsg)
+                return reject(new Error(result.errmsg))
             }
             resolve(result)
         })
@@ -55,9 +54,9 @@ function createUser (data) {
 }
 
 //更新用户信息
-function updateUserInfo (data) {
+function updateUserInfo (userId,data) {
     return new Promise ((resolve, reject) => {
-        userModel.updateOne({openid:data.openid}, {$set:data}, (err, result) => {
+        userModel.findByIdAndUpdate(userId, {$set:data}, (err, result) => {
             if (err) {
                 return reject(err)
             }
@@ -67,11 +66,11 @@ function updateUserInfo (data) {
 }
 
 //创建session
-function createSession (openid,sessionKey) {
+function createSession (userid,sessionKey) {
     return new Promise((resolve,reject) => {
-        const session = MD5(openid+sessionKey).toString()
+        const session = MD5(userid+sessionKey).toString()
         const param = {
-            openid,
+            userid,
             sessionKey
         }
         redisClient.set(session, JSON.stringify(param), function (err) {
@@ -101,8 +100,8 @@ exports.login = async (req,res) => {
         const exsits = await userExsits(sessionKey.openid)
         let data = info
         data.openid  = sessionKey.openid
-        exsits ? await updateUserInfo(data) : await createUser(data)
-        const session = await createSession(sessionKey.openid,sessionKey.session_key)
+        const doRes = exsits ? await updateUserInfo(exsits.id,data) : await createUser(data)
+        const session = await createSession(doRes.id,sessionKey.session_key)
         res.send(200,session)
     } catch (err) {
         console.log('[%j] login ,code:%j, info:%j, err:%j', new Date().toLocaleString(), code, info, err.stack)        

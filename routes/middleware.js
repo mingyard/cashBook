@@ -64,8 +64,8 @@ exports.midSend = function () {
     }
 }
 
-//通过session获取openid
-exports.getOpenId = function (req, res, next) {
+//通过session获取userId
+exports.getUserId = function (req, res, next) {
     var sessionId = req.body.sessionId
     if (!sessionId) {
         return res.send(400, '参数错误,缺少sessionId')
@@ -78,7 +78,7 @@ exports.getOpenId = function (req, res, next) {
             return res.send(400,'session已过期') 
         }
         var info = JSON.parse(result)
-        req.openId = info.openid
+        req.userid = info.userid
         req.sessionKey = info.sessionKey
         next()
     })

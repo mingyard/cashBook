@@ -21,6 +21,6 @@ api.post("/cash/info", middleware.getUserId, cash.checkCash(false),cash.lastCash
 //获取账本类型列表
 api.post("/cashType/list", middleware.getUserId, cash.getTypeList)
 //获取指定类型账本数量
-api.post("/cashType/count", middleware.getOpenId, cash.typeCount)
+api.post("/cashType/count", middleware.getUserId, cash.typeCount)
 //上传图片接口
 api.post("/upload/image", multer().single('file'),/*middleware.getOpenId,*/ cash.uploadImage)

@@ -371,9 +371,9 @@ function typeList() {
 
 //获取指定类型账本数量
 exports.typeCount = function (req, res) {
-    const openId = req.openId
+    const userid = req.userid
     const id = req.body.id
-    cashModel.count({openid: openId,categoryid: id, status: 1}, function (err,result) {
+    cashModel.count({userid: userid,categoryid: id, status: 1}, function (err,result) {
         if (err) {
             return res.send(400, err)
         }

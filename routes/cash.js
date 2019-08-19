@@ -70,7 +70,7 @@ exports.cashList =  async (req, res) => {
     try {
         const list = await allCash(req.userid)
         let listInfo = []
-        for (let cashid of _.keys(list)) {
+        for (let cashid of list) {
             let info = await cashInfo(cashid)
             listInfo.push(info)
         }

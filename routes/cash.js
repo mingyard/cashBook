@@ -99,15 +99,14 @@ exports.lastCashInfo =  async (req, res) => {
         let cashInfo = req.cash ? (req.cash).toObject() : (await lastCash(req.openId)).toObject()
         cashInfo.members = []
         const members = await getMembers(cashInfo._id.toString())
-        for (const item of members) {
+        for (let item of members) {
             const {openid,nickName,avatarUrl} = (await memberInfo(item)).toObject()
             cashInfo.members.push({openid,nickName,avatarUrl})
         }
         res.send(200,cashInfo)
     } catch (err) {
-        if (err) {
-            return res.send(400,err)
-        }
+        console.log('[%j] lastCashInfo , cashid:%j, err:%j', new Date().toLocaleString(), req.cashInfo._id, err.stack)        
+        return res.send(400,err.message)
     }
 }
 

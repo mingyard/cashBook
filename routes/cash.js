@@ -76,7 +76,7 @@ exports.cashList =  async (req, res) => {
         }
         res.send(200,listInfo)
     } catch (err) {
-        console.log('[%j] cashList , userid:%j, err:%j', new Date().toLocaleString(), userid, err.stack)        
+        console.log('[%j] cashList , userid:%j, err:%j', new Date().toLocaleString(), req.userid, err.stack)        
         return res.send(400,err.message)
     }
 }

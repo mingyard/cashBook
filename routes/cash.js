@@ -40,6 +40,7 @@ exports.crateCash = async (req,res) => {
 //删除账本
 exports.del = async (req,res) => {
     const cashid = req.cash._id
+    const userid = req.userid
     if (req.cash.status != 1) {
         res.send(400,"已删除")
     }

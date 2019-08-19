@@ -98,7 +98,7 @@ exports.lastCashInfo =  async (req, res) => {
     try {
         let cashInfo = req.cash ? (req.cash).toObject() : (await lastCash(req.openId)).toObject()
         cashInfo.members = []
-        const members = await getMembersArray(cashInfo.id)
+        const members = await getMembers(cashInfo.id)
         for (const item of members) {
             const {openid,nickName,avatarUrl} = (await memberInfo(item)).toObject()
             cashInfo.members.push({openid,nickName,avatarUrl})
@@ -130,18 +130,6 @@ function lastCash(openId) {
                 return reject(err)
             }
             resolve(result)
-        })
-    })
-}
-
-//获取成员列表
-function getMembersArray(cashId) {
-    return new Promise((resolve,reject)=>{
-        redisClient.hgetall(cashId, (err, result) => {
-            if (err) {
-                return reject(err)
-            }
-            resolve(_.keys(result))
         })
     })
 }

@@ -174,42 +174,42 @@ exports.checkCash = function (turn = true) {
 }
 
 //添加账本成员接口
-exports.addMembers = function (req, res) {
-    const openIds = req.param('openids')
-    const cashId = req.param('cashId')
-    async.auto({
-        add: function (cb) {
-            async.eachSeries(openIds, function (item) {
-                exports.addMember(cashId, item, new Date().getTime(), function () {})
-            }, function () {
-                cb()
-            })
-        },
-        members: ['add', function (cb) {
-            exports.getMembers(cashId, function (err, result) {
-                if (err) {
-                    return cb(err)
-                }
-                cb(null, result)
-            }) 
-        }],
-        update: ['members', function (result, cb) {
-            var members = result.members
-            cashModel.updateOne({_id:cashId}, {$set: {members: members}}, function (err, result) {
-                if (err) {
-                    return cb(err)
-                }
-                cb(null, result)
-            })
-        }]
-    }, function (err, result) {
-        console.log('[%j] cash.addMembers , result:%j, err:%j', new Date().toLocaleString(), result, err)
-        if (err) {
-            return res.send(400, err)
-        }
-        res.send(200, '添加成功')
-    })
-}
+// exports.addMembers = function (req, res) {
+//     const openIds = req.param('openids')
+//     const cashId = req.param('cashId')
+//     async.auto({
+//         add: function (cb) {
+//             async.eachSeries(openIds, function (item) {
+//                 exports.addMember(cashId, item, new Date().getTime(), function () {})
+//             }, function () {
+//                 cb()
+//             })
+//         },
+//         members: ['add', function (cb) {
+//             exports.getMembers(cashId, function (err, result) {
+//                 if (err) {
+//                     return cb(err)
+//                 }
+//                 cb(null, result)
+//             }) 
+//         }],
+//         update: ['members', function (result, cb) {
+//             var members = result.members
+//             cashModel.updateOne({_id:cashId}, {$set: {members: members}}, function (err, result) {
+//                 if (err) {
+//                     return cb(err)
+//                 }
+//                 cb(null, result)
+//             })
+//         }]
+//     }, function (err, result) {
+//         console.log('[%j] cash.addMembers , result:%j, err:%j', new Date().toLocaleString(), result, err)
+//         if (err) {
+//             return res.send(400, err)
+//         }
+//         res.send(200, '添加成功')
+//     })
+// }
 
 //创建账本
 exports.create = function (param, cb) {
@@ -248,22 +248,12 @@ function addCashMember(cashid,userid) {
 //删除账本成员
 function delCashMember(cashid,userid) {
     return new Promise((resolve,reject) => {
-        redisClient.zrem("cash_"+cashId,userId,(err,result) => {
+        redisClient.zrem("cash_"+cashid,userid,(err,result) => {
             if (err) {
                 return reject(err)
             }
             resolve(result)
         })
-    })
-}
-
-//添加账本成员
-exports.addMember = function (cashId, userId, time, cb) {
-    redisClient.hset(cashId, userId, time, function (err, result) {
-        if (err) {
-            return cb(err)
-        }
-        cb(null,result)
     })
 }
 
@@ -276,16 +266,6 @@ function getMembers(cashid) {
             }
             resolve(result)
         })
-    })
-}
-
-//获取账本成员redis数据
-exports.getMembers = function (cashId, cb) {
-    redisClient.hgetall(cashId, function (err, result) {
-        if (err) {
-            return cb(err)
-        }
-        cb(null, _.keys(result))
     })
 }
 

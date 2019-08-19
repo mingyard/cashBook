@@ -28,7 +28,7 @@ exports.crateCash = async (req,res) => {
     }
     try {
         const cash = await createCash(param)
-        await addCashMember(cash.id,'9999999999999')
+        await addCashMember(cash.id,userid)
         await addCash(userid,cash.id)
         res.send(200,cash.id)
     } catch (err) {
@@ -247,9 +247,10 @@ function createCash(param) {
 }
 
 //添加账本成员
-function addCashMember(cashId,userId,time) {
+function addCashMember(cashid,userid) {
     return new Promise((resolve,reject) => {
-        redisClient.hset("cash_"+cashId,userId,time,(err,result) => {
+        const time = new Date().getTime()
+        redisClient.zadd("cash_"+cashid,time,userid,(err,result) => {
             if (err) {
                 return reject(err)
             }
@@ -260,7 +261,7 @@ function addCashMember(cashId,userId,time) {
 //删除账本成员
 function delCashMember(cashid,userid) {
     return new Promise((resolve,reject) => {
-        redisClient.hdel("cash_"+cashId,userId,(err,result) => {
+        redisClient.zrem("cash_"+cashId,userId,(err,result) => {
             if (err) {
                 return reject(err)
             }
@@ -282,7 +283,7 @@ exports.addMember = function (cashId, userId, time, cb) {
 //获取账本成员
 function getMembers(cashid) {
     return new Promise((resolve,reject)=>{
-        redisClient.hgetall("cash_" + cashid,(err,result)=>{
+        redisClient.zrangebyscore("cash_" + cashid,'-inf','+inf',(err,result)=>{
             if (err) {
                 return reject(err)
             }
@@ -304,6 +305,7 @@ exports.getMembers = function (cashId, cb) {
 //添加用户参与账本
 function addCash(userid,cashid) {
     return new Promise((resolve,reject) => {
+        const time = new Date().getTime()
         redisClient.zadd('cashList_' + userid,time,cashid,(err,result)=>{
             if (err) {
                 return reject(err)

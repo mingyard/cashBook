@@ -97,7 +97,7 @@ function cashInfo (cashid) {
 //获取最后一次修改的账本
 exports.lastCashInfo =  async (req, res) => {
     try {
-        let cashInfo = req.cash ? (req.cash).toObject() : (await lastCash(req.openId)).toObject()
+        let cashInfo = req.cash ? (req.cash).toObject() : (await lastCash(req.userid)).toObject()
         cashInfo.members = []
         const members = await getMembers(cashInfo._id.toString())
         for (let item of members) {
@@ -106,30 +106,30 @@ exports.lastCashInfo =  async (req, res) => {
         }
         res.send(200,cashInfo)
     } catch (err) {
-        console.log('[%j] lastCashInfo , cashid:%j, err:%j', new Date().toLocaleString(), req.cashInfo._id, err.stack)        
+        console.log('[%j] lastCashInfo , userid:%j, err:%j', new Date().toLocaleString(), req.userid, err.stack)        
         return res.send(400,err.message)
     }
 }
 
-//获取最后一次修改的账本
-function lastCash(openId) {
+//获取最后一次使用的账本
+function lastCash(userid) {
     return new Promise((resolve, reject)=>{
-        //默认查询条件
-        var spec = {
-            openid: openId,
-            status: 1
-        }
-        //取最近记录一条
-        var options = {
-            sort: {
-                updatedAt: -1
-            }
-        }
-        cashModel.findOne(spec,{},options,function (err, result){
+        redisClient.zrevrangebyscore('cashList_' + userid,'+inf','-inf','limit',0,1,(err,result)=> {
             if (err) {
                 return reject(err)
             }
-            resolve(result)
+            if (!result) {
+                return resolve(new Error('还未添加账本'))
+            }
+            cashModel.findOne({_id:result[0],status:1}, (err, result) => {
+                if (err) {
+                    return reject(err)
+                }
+                if (!result) {
+                    return resolve(new Error('账本不存在'))
+                }
+                resolve(result)
+            })
         })
     })
 }

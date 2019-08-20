@@ -118,7 +118,7 @@ function lastCash(userid) {
             if (err) {
                 return reject(err)
             }
-            if (!result) {
+            if (result.length == 0) {
                 return reject(new Error('还未添加账本'))
             }
             cashModel.findOne({_id:result[0],status:1}, (err, result) => {

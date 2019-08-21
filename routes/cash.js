@@ -45,7 +45,9 @@ exports.del = async (req,res) => {
         res.send(400,"已删除")
     }
     try {
-        await changeCash(cashid)
+        if (req.cash.userid  == req.userid) {
+            await changeCash(cashid)
+        }
         await delCashMember(cashid,userid)
         await delCash(userid,cashid)
     } catch (err) {
@@ -163,10 +165,6 @@ exports.checkCash = function (turn = true) {
             //判断账本是否存在
             if (!result) {
                 return res.send(400, '该账本不存在')
-            }
-            //判断是否有读取该账本的权限
-            if (result.userid != req.userid) {
-                return res.send(400, '没有查看该账本权限')
             }
             req.cash = result
             next()

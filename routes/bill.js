@@ -35,9 +35,9 @@ function create(data){
 }
 
 //获取账单自定义类型
-exports.typeList = (req,res) => {
+exports.typeList = async (req,res) => {
     const {cashId:cashid} = req.body
-    lableModel.find({cashid,status:1},(err,result)=>{
+    lableModel.find({cashid:{$in:["",cashid]},status:1},(err,result)=>{
         if (err) {
             return res.send(400,err)
         }
@@ -47,11 +47,19 @@ exports.typeList = (req,res) => {
 
 //添加账单自定义类型
 exports.addType = (req,res) => {
-    const {cashId:cashid,icon,name,type} = req.body
+    const {
+        cashId,
+        categoryTitle,
+        categoryIcon,
+        parentId,
+        type,
+    } = req.body
     let data = {
-        cashid,
-        icon,
-        name,
+        cashid: cashId,
+        categorytitle: categoryTitle,
+        categoryicon: categoryIcon,
+        parentid: parentId,
+        type: type,
         status: "1",
     }
     lableModel.create(data,(err,result) => {
@@ -93,8 +101,20 @@ exports.delType = (req,res) => {
 
 //修改账单自定义类型
 exports.updateType = (req,res) => {
-    const {lableid,name,icon} = req.body
-    lableModel.updateOne({_id:lableid},{$set:{name,icon}},(err, result) =>{
+    const {
+        cashId,
+        categoryTitle,
+        categoryIcon,
+        parentId,
+        type
+    } = req.body
+    const update = {
+        categorytitle: categoryTitle,
+        categoryicon: categoryIcon,
+        parentid: parentId,
+        type: type
+    }
+    lableModel.updateOne({_id:cashId},{$set:update},(err, result) =>{
         if (err) {
             return res.send(400,err)
         }

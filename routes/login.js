@@ -101,7 +101,7 @@ exports.login = async (req,res) => {
         if (!exsits && !info) {
             res.send(400,'参数错误')
         }
-        let data = info
+        let data = info || {}
         let userId 
         data.openid  = sessionKey.openid
         if (!exsits) {

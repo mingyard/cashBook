@@ -29,7 +29,7 @@ function getSessionKey (code) {
 }
 
 //检测用户是否存在
-function userExsits(openid) {
+exports.userExsits = (openid) => {
     return new Promise ((resolve, reject) => {
         userModel.findOne({openid}, (err, result) => {
             if (err) {
@@ -97,11 +97,15 @@ exports.login = async (req,res) => {
     }
     try {
         const sessionKey = await getSessionKey(code)
-        const exsits = await userExsits(sessionKey.openid)
+        const exsits = await exports.userExsits(sessionKey.openid)
         let data = info
         data.openid  = sessionKey.openid
-        const doRes = exsits ? await updateUserInfo(exsits.id,data) : await createUser(data)
-        const session = await createSession(doRes.id,sessionKey.session_key)
+        let userId 
+        if (!exsits) {
+           let { id: userId } = await createUser(data)
+        }
+        userId = exsits.id
+        const session = await createSession(userId,sessionKey.session_key)
         res.send(200,session)
     } catch (err) {
         console.log('[%j] login ,code:%j, info:%j, err:%j', new Date().toLocaleString(), code, info, err.stack)        
@@ -109,6 +113,21 @@ exports.login = async (req,res) => {
     }
 }
 
+
+exports.checkUser = async(req,res) => {
+    const code = req.body.code
+    if (!code) {
+        return res.send(400,'参数错误') 
+    }
+    try {
+        const sessionKey = await getSessionKey(code)
+        const exsits = await exports.userExsits(sessionKey.openid)
+        res.send(200, exsits)
+    }catch (err) {
+        console.log('[%j] checkUser ,code:%j, err:%j', new Date().toLocaleString(), code, err.stack)        
+        res.send(400, err.message)
+    }
+}
 
 //检查session
 exports.checkSession = function (session, cb) {

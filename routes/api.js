@@ -13,6 +13,9 @@ api.get('/share/info', shareInfo.getNowShareInfo)
 //登陆
 api.post('/login', login.login)
 
+//校验用户是否存在
+api.post('/exsit', login.userExsits)
+
 //获取用户记账本列表
 api.post('/cash/list', middleware.getUserId, cash.cashList)
 //创建记账本

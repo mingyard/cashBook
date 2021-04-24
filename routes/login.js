@@ -92,20 +92,23 @@ exports.login = async (req,res) => {
     const code = req.body.code
     const info = req.body.info
 
-    if (!code || !info) {
+    if (!code) {
         return res.send(400,'参数错误')
     }
     try {
         const sessionKey = await getSessionKey(code)
         const exsits = await exports.userExsits(sessionKey.openid)
+        if (!exsits && !info) {
+            res.send(400,'参数错误')
+        }
         let data = info
-        data.openid  = sessionKey.openid
         let userId 
         if (!exsits) {
-           let { id: userId } = await createUser(data)
+            data.openid  = sessionKey.openid
+            let { id: userId } = await createUser(data)
         }
         userId = exsits.id
-        const session = await createSession(userId,sessionKey.session_key)
+        const session = await createSession(userId, sessionKey.session_key)
         res.send(200,session)
     } catch (err) {
         console.log('[%j] login ,code:%j, info:%j, err:%j', new Date().toLocaleString(), code, info, err.stack)        
